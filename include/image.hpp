@@ -13,6 +13,7 @@ public:
     virtual unsigned int width() = 0;
     virtual unsigned int height() = 0;
 
+    Color getPixel(unsigned int x, unsigned int y);
     void setPixel(unsigned int x, unsigned int y, Color pixel);
 };
 
@@ -28,6 +29,6 @@ public:
 
 private:
     unsigned int m_width, m_height;
-    Color* pixels;
+    Color* m_pixels;
 };
 #endif
