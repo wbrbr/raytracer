@@ -21,6 +21,7 @@ class PngImage: public Image
 {
 public:
     PngImage(unsigned int w, unsigned int h);
+    ~PngImage();
     void read(std::string path);
     void write(std::string path);
     unsigned int width();

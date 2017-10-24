@@ -12,6 +12,10 @@ set(CMAKE_CXX_STANDARD 11)
 
 add_executable(raytracer ${SRCS})
 
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
 target_link_libraries(raytracer ${PNG_LIBRARY})
+

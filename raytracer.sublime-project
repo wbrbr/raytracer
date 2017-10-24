@@ -1,0 +1,94 @@
+{
+	"build_systems":
+	[
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "\"python\" -u \"$file\""
+		},
+		{
+			"file_regex": "(.+[^:]):(\\d+):(\\d+): (?:fatal )?((?:error|warning): .+)$",
+			"name": "raytracer (Linux)",
+			"shell_cmd": "make -j2",
+			"syntax": "Packages/CMakeBuilder/Syntax/Make.sublime-syntax",
+			"variants":
+			[
+				{
+					"name": "clean",
+					"shell_cmd": "make -j2 clean"
+				},
+				{
+					"name": "rebuild_cache",
+					"shell_cmd": "make -j2 rebuild_cache"
+				},
+				{
+					"name": "raytracer",
+					"shell_cmd": "make -j2 raytracer"
+				},
+				{
+					"name": "src/image.o",
+					"shell_cmd": "make -j2 src/image.o"
+				},
+				{
+					"name": "src/image.i",
+					"shell_cmd": "make -j2 src/image.i"
+				},
+				{
+					"name": "src/image.s",
+					"shell_cmd": "make -j2 src/image.s"
+				},
+				{
+					"name": "src/main.o",
+					"shell_cmd": "make -j2 src/main.o"
+				},
+				{
+					"name": "src/main.i",
+					"shell_cmd": "make -j2 src/main.i"
+				},
+				{
+					"name": "src/main.s",
+					"shell_cmd": "make -j2 src/main.s"
+				},
+				{
+					"name": "src/math.o",
+					"shell_cmd": "make -j2 src/math.o"
+				},
+				{
+					"name": "src/math.i",
+					"shell_cmd": "make -j2 src/math.i"
+				},
+				{
+					"name": "src/math.s",
+					"shell_cmd": "make -j2 src/math.s"
+				},
+				{
+					"name": "src/sphere.o",
+					"shell_cmd": "make -j2 src/sphere.o"
+				},
+				{
+					"name": "src/sphere.i",
+					"shell_cmd": "make -j2 src/sphere.i"
+				},
+				{
+					"name": "src/sphere.s",
+					"shell_cmd": "make -j2 src/sphere.s"
+				}
+			],
+			"working_dir": "${project_path}/build"
+		}
+	],
+	"folders":
+	[
+		{
+			"path": "/home/wilhem/projects/raytracing"
+		}
+	],
+	"settings":
+	{
+		"cmake":
+		{
+			"build_folder": "${project_path}/build"
+		}
+	}
+}

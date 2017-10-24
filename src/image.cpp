@@ -17,6 +17,11 @@ PngImage::PngImage(unsigned int w, unsigned int h): m_width(w), m_height(h)
     m_pixels = new Color[width() * height()];
 }
 
+PngImage::~PngImage()
+{
+    delete m_pixels;
+}
+
 void PngImage::write(std::string path)
 {
     FILE* fp = fopen(path.c_str(), "wb");
