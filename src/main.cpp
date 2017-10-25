@@ -12,8 +12,8 @@ int main()
     PngImage img(width, height);
 
     Sphere sphere;
-    sphere.center = Vector3f(0.f, 0.f, 0.f);
-    sphere.radius = 0.3f;
+    sphere.center = Vector3f(0.f, 0.f, 0.2f);
+    sphere.radius = 0.1f;
 
     Triangle triangle;
     triangle.vertices[0] = Vector3f(1.f, -1.f, 0.f);
@@ -63,8 +63,25 @@ int main()
                 continue;
             }
             Eigen::Vector3f intersection_point = camera_ray.origin + camera_ray.orientation * closest;
-            auto normal = closest_shape->normal(intersection_point);
+            Ray reverse_light_ray = Ray::fromPoints(intersection_point, light.position);
+
+            // test if light is obstructed
+            bool obstructed = false;
+            for (auto shape : shapes) {
+                if (shape == closest_shape) continue;
+                auto res = shape->intersects(reverse_light_ray);
+                if (res.size() != 0) {
+                    obstructed = true;
+                    break;
+                }
+            }
+            if (obstructed) {
+                img.setPixel(x, y, BLACK);
+                continue;
+            }
+
             Ray light_ray = Ray::fromPoints(light.position, intersection_point);
+            auto normal = closest_shape->normal(intersection_point);
             
             Eigen::Vector3f reflected = light_ray.orientation - 2.f * (normal.dot(light_ray.orientation)) * normal;
             Eigen::Vector3f v = -camera_ray.orientation;
