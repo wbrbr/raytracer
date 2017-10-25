@@ -9,11 +9,11 @@ using namespace Eigen;
 class Shape
 {
 public:
-    virtual std::vector<Vector3f> intersects(Ray ray) = 0;
+    virtual std::vector<float> intersects(Ray ray) = 0;
     virtual Vector3f normal(Vector3f point) = 0;
 };
 
-class Sphere
+class Sphere: public Shape
 {
 public:
     Vector3f center;
@@ -23,7 +23,7 @@ public:
     Vector3f normal(Vector3f point);
 };
 
-class Triangle
+class Triangle: public Shape
 {
 public:
     Vector3f vertices[3];

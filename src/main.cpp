@@ -20,6 +20,10 @@ int main()
     triangle.vertices[1] = Vector3f(0.f, 1.f, 0.f);
     triangle.vertices[2] = Vector3f(-1.f, -1.f, 0.f);
 
+    std::vector<Shape*> shapes;
+    shapes.push_back(&sphere);
+    shapes.push_back(&triangle);
+
     Ray camera_ray;
     camera_ray.origin = Vector3f(0.f, 0.f, 1.f);
 
@@ -43,23 +47,25 @@ int main()
 
             camera_ray.setOrientation(Vector3f(world_x, world_y, -1.f));
 
-            // auto res = sphere.intersects(camera_ray);
-            auto res = triangle.intersects(camera_ray);
-            if (res.size() == 0) {
+            float closest = INFINITY;
+            Shape* closest_shape = nullptr;
+            for (auto shape : shapes) {
+                auto res = shape->intersects(camera_ray);
+                if (res.size() == 0) continue;
+                float t = *std::min_element(res.begin(), res.end());
+                if (t < closest) {
+                    closest = t;
+                    closest_shape = shape;
+                }
+            }
+            if (closest_shape == nullptr) { // no intersection
                 img.setPixel(x, y, BLACK);
                 continue;
             }
-            img.setPixel(x, y, RED);
-            Eigen::Vector3f intersection_point = camera_ray.origin + camera_ray.orientation * res[0];
-            auto normal = triangle.normal(intersection_point);
+            Eigen::Vector3f intersection_point = camera_ray.origin + camera_ray.orientation * closest;
+            auto normal = closest_shape->normal(intersection_point);
             Ray light_ray = Ray::fromPoints(light.position, intersection_point);
-
             
-            /* Ray light_ray = Ray::fromPoints(light.position, sphere.center);
-            float closest = *std::min_element(res.begin(), res.end());
-            Eigen::Vector3f closest_point = camera_ray.origin + closest * camera_ray.orientation;
-            Eigen::Vector3f normal = (closest_point - sphere.center).normalized(); */
-
             Eigen::Vector3f reflected = light_ray.orientation - 2.f * (normal.dot(light_ray.orientation)) * normal;
             Eigen::Vector3f v = -camera_ray.orientation;
             float v_dot_r = v.dot(reflected);
