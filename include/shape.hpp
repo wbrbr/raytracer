@@ -20,4 +20,12 @@ public:
 
     std::vector<float> intersects(Ray ray);
 };
+
+class Triangle
+{
+public:
+    Vector3f vertices[3];
+
+    std::vector<float> intersects(Ray ray);
+};
 #endif

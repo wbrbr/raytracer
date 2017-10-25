@@ -73,6 +73,18 @@
 				{
 					"name": "src/sphere.s",
 					"shell_cmd": "make -j2 src/sphere.s"
+				},
+				{
+					"name": "src/triangle.o",
+					"shell_cmd": "make -j2 src/triangle.o"
+				},
+				{
+					"name": "src/triangle.i",
+					"shell_cmd": "make -j2 src/triangle.i"
+				},
+				{
+					"name": "src/triangle.s",
+					"shell_cmd": "make -j2 src/triangle.s"
 				}
 			],
 			"working_dir": "${project_path}/build"
