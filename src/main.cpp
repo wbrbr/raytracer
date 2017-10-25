@@ -3,6 +3,7 @@
 #include "ray.hpp"
 #include "shape.hpp"
 #include "light.hpp"
+#include "mesh.hpp"
 #include <iostream>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -18,36 +19,7 @@ int main()
     sphere.center = Vector3f(0.f, 0.f, 0.2f);
     sphere.radius = 0.1f;
 
-    /* Mesh mesh(5);
-    mesh.vertices[0] = Vector3f(1.f, -1.f, 0.f);
-    mesh.vertices[1] = Vector3f(0.f, 1.f, 0.f);
-    mesh.vertices[2] = Vector3f(-1.f, -1.f, 0.f);
-    mesh.vertices[3] = Vector3f(-1.f, 1.f, 0.f);
-    mesh.vertices[4] = Vector3f(1.f, 1.f, 0.f);
-
-    Triangle triangle1;
-    triangle1.mesh = &mesh;
-    triangle1.indices[0] = 0;
-    triangle1.indices[1] = 1;
-    triangle1.indices[2] = 2;
-
-    Triangle triangle2;
-    triangle2.mesh = &mesh;
-    triangle2.indices[0] = 1;
-    triangle2.indices[1] = 3;
-    triangle2.indices[2] = 2;
-
-    Triangle triangle3;
-    triangle3.mesh = &mesh;
-    triangle3.indices[0] = 4;
-    triangle3.indices[1] = 1;
-    triangle3.indices[2] = 0; */
-
     std::vector<Shape*> shapes;
-    // shapes.push_back(&sphere);
-    /* shapes.push_back(&triangle1);
-    shapes.push_back(&triangle2);
-    shapes.push_back(&triangle3); */
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile("cube.obj", aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
@@ -81,6 +53,8 @@ int main()
     Light light;
     light.position = Eigen::Vector3f(0.5f, 0.f, 0.5f);
 
+    Box bbox = mesh.boundingBox();
+
     const auto RED = Color{1.f, 0.f, 0.f, 1.f};
     const auto WHITE = Color{1.f, 1.f, 1.f, 1.f};
     const auto BLACK = Color{0.f, 0.f, 0.f, 1.f};
@@ -97,6 +71,9 @@ int main()
             float world_y = (down_y + up_y) / 2.f;
 
             camera_ray.setOrientation(Vector3f(world_x, world_y, -1.f));
+
+            // first check with bounding box
+            if (bbox.intersects(camera_ray).size() == 0) continue;
 
             float closest = INFINITY;
             Shape* closest_shape = nullptr;

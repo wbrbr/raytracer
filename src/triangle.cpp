@@ -1,5 +1,6 @@
 #include "shape.hpp"
 #include <Eigen/Dense>
+#include "mesh.hpp"
 
 std::vector<float> Triangle::intersects(Ray ray)
 {

@@ -1,6 +1,7 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 #include <Eigen/Core>
+#include "shape.hpp"
 
 class Mesh
 {
@@ -9,5 +10,6 @@ public:
     unsigned int size;
     Mesh(unsigned int n);
     ~Mesh();
+    Box boundingBox();
 };
 #endif

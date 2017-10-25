@@ -27,6 +27,18 @@
 					"shell_cmd": "make -j2 raytracer"
 				},
 				{
+					"name": "src/box.o",
+					"shell_cmd": "make -j2 src/box.o"
+				},
+				{
+					"name": "src/box.i",
+					"shell_cmd": "make -j2 src/box.i"
+				},
+				{
+					"name": "src/box.s",
+					"shell_cmd": "make -j2 src/box.s"
+				},
+				{
 					"name": "src/image.o",
 					"shell_cmd": "make -j2 src/image.o"
 				},

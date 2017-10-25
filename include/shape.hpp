@@ -3,7 +3,6 @@
 #include <utility>
 #include "ray.hpp"
 #include "math.hpp"
-#include "mesh.hpp"
 
 class Shape
 {
@@ -22,6 +21,7 @@ public:
     Eigen::Vector3f normal(Vector3f point);
 };
 
+class Mesh;
 class Triangle: public Shape
 {
 public:
@@ -31,5 +31,14 @@ public:
     std::vector<float> intersects(Ray ray);
     Eigen::Vector3f normal(Vector3f point);
     Vector3f vertex(unsigned int n);
+};
+
+class Box: public Shape
+{
+public:
+    Eigen::Vector3f minPoint, maxPoint;
+
+    std::vector<float> intersects(Ray ray);
+    Eigen::Vector3f normal(Eigen::Vector3f point);
 };
 #endif
