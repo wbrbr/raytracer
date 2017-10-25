@@ -63,6 +63,18 @@
 					"shell_cmd": "make -j2 src/math.s"
 				},
 				{
+					"name": "src/mesh.o",
+					"shell_cmd": "make -j2 src/mesh.o"
+				},
+				{
+					"name": "src/mesh.i",
+					"shell_cmd": "make -j2 src/mesh.i"
+				},
+				{
+					"name": "src/mesh.s",
+					"shell_cmd": "make -j2 src/mesh.s"
+				},
+				{
 					"name": "src/sphere.o",
 					"shell_cmd": "make -j2 src/sphere.o"
 				},

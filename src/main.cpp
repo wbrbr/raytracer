@@ -4,6 +4,9 @@
 #include "shape.hpp"
 #include "light.hpp"
 #include <iostream>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 int main()
 {
@@ -15,7 +18,7 @@ int main()
     sphere.center = Vector3f(0.f, 0.f, 0.2f);
     sphere.radius = 0.1f;
 
-    Mesh mesh(5);
+    /* Mesh mesh(5);
     mesh.vertices[0] = Vector3f(1.f, -1.f, 0.f);
     mesh.vertices[1] = Vector3f(0.f, 1.f, 0.f);
     mesh.vertices[2] = Vector3f(-1.f, -1.f, 0.f);
@@ -38,13 +41,39 @@ int main()
     triangle3.mesh = &mesh;
     triangle3.indices[0] = 4;
     triangle3.indices[1] = 1;
-    triangle3.indices[2] = 0;
+    triangle3.indices[2] = 0; */
 
     std::vector<Shape*> shapes;
     // shapes.push_back(&sphere);
-    shapes.push_back(&triangle1);
+    /* shapes.push_back(&triangle1);
     shapes.push_back(&triangle2);
-    shapes.push_back(&triangle3);
+    shapes.push_back(&triangle3); */
+
+    Assimp::Importer importer;
+    const aiScene* scene = importer.ReadFile("cube.obj", aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+    if (!scene) {
+        std::cerr << "failed to load cube.obj: " << importer.GetErrorString() << std::endl;
+        return 1;
+    }
+    aiNode* node = scene->mRootNode->FindNode("Cube");
+    unsigned int mindex = node->mMeshes[0];
+    aiMesh* m = scene->mMeshes[mindex];
+    Mesh mesh(m->mNumVertices);
+    for (unsigned int i = 0; i < m->mNumVertices; i++)
+    {
+        Vector3f v(m->mVertices[i].x, m->mVertices[i].y, m->mVertices[i].z);
+        mesh.vertices[i] = v;
+    }
+
+    for (unsigned int i = 0; i < m->mNumFaces; i++)
+    {
+        auto triangle = new Triangle;
+        triangle->mesh = &mesh;
+        triangle->indices[0] = m->mFaces[i].mIndices[0];
+        triangle->indices[1] = m->mFaces[i].mIndices[1];
+        triangle->indices[2] = m->mFaces[i].mIndices[2];
+        shapes.push_back(triangle);
+    }
 
     Ray camera_ray;
     camera_ray.origin = Vector3f(0.f, 0.f, 1.f);
@@ -128,5 +157,9 @@ int main()
         }
     }
     img.write("out.png");
+    for (unsigned int i = 0; i < shapes.size(); i++)
+    {
+        delete shapes[i];
+    }
     return 0;
 }

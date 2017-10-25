@@ -17,5 +17,8 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 
 find_package(PNG REQUIRED)
 include_directories(${PNG_INCLUDE_DIR})
-target_link_libraries(raytracer ${PNG_LIBRARY})
 
+find_package(ASSIMP REQUIRED)
+include_directories(${ASSIMP_INCLUDE_DIR})
+
+target_link_libraries(raytracer ${PNG_LIBRARY} assimp)
