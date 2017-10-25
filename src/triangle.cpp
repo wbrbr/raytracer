@@ -30,6 +30,17 @@ std::vector<float> Triangle::intersects(Ray ray)
     }
 
     // there is an intersection
-    res.push_back(0.f);
+    float t = f * edge2.dot(q);
+    if (t <= 0.f) {
+        return res;
+    }
+    res.push_back(t);
     return res;
+}
+
+Vector3f Triangle::normal(Vector3f point)
+{
+    Vector3f edge01 = vertices[1] - vertices[0];
+    Vector3f edge02 = vertices[2] - vertices[0];
+    return edge01.cross(edge02).normalized();
 }

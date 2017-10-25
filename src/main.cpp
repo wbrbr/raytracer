@@ -20,8 +20,11 @@ int main()
     triangle.vertices[1] = Vector3f(0.f, 1.f, 0.f);
     triangle.vertices[2] = Vector3f(-1.f, -1.f, 0.f);
 
+    Ray camera_ray;
+    camera_ray.origin = Vector3f(0.f, 0.f, 1.f);
+
     Light light;
-    light.position = Eigen::Vector3f(0.5f, 0.f, -0.5f);
+    light.position = Eigen::Vector3f(0.5f, 0.f, 0.5f);
 
     const auto RED = Color{1.f, 0.f, 0.f, 1.f};
     const auto WHITE = Color{1.f, 1.f, 1.f, 1.f};
@@ -38,23 +41,24 @@ int main()
             float up_y = 1.f - static_cast<float>(y+1) * 2.f / static_cast<float>(height);
             float world_y = (down_y + up_y) / 2.f;
 
-            Ray camera_ray;
-            camera_ray.origin = Vector3f(0.f, 0.f, -1.f);
-            camera_ray.setOrientation(Vector3f(world_x, world_y, 1.f));
+            camera_ray.setOrientation(Vector3f(world_x, world_y, -1.f));
 
             // auto res = sphere.intersects(camera_ray);
             auto res = triangle.intersects(camera_ray);
             if (res.size() == 0) {
                 img.setPixel(x, y, BLACK);
                 continue;
-            } else {
-                img.setPixel(x, y, RED);
             }
+            img.setPixel(x, y, RED);
+            Eigen::Vector3f intersection_point = camera_ray.origin + camera_ray.orientation * res[0];
+            auto normal = triangle.normal(intersection_point);
+            Ray light_ray = Ray::fromPoints(light.position, intersection_point);
+
             
             /* Ray light_ray = Ray::fromPoints(light.position, sphere.center);
             float closest = *std::min_element(res.begin(), res.end());
             Eigen::Vector3f closest_point = camera_ray.origin + closest * camera_ray.orientation;
-            Eigen::Vector3f normal = (closest_point - sphere.center).normalized();
+            Eigen::Vector3f normal = (closest_point - sphere.center).normalized(); */
 
             Eigen::Vector3f reflected = light_ray.orientation - 2.f * (normal.dot(light_ray.orientation)) * normal;
             Eigen::Vector3f v = -camera_ray.orientation;
@@ -74,7 +78,7 @@ int main()
             float kd = 0.8f;
             float ks = 0.2f;
 
-            img.setPixel(x, y, Color{diffuse_intensity * kd + specular_intensity * ks, specular_intensity * ks, specular_intensity * ks, 1.f}); */
+            img.setPixel(x, y, Color{diffuse_intensity * kd + specular_intensity * ks, specular_intensity * ks, specular_intensity * ks, 1.f});
         }
     }
     img.write("out.png");

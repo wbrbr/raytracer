@@ -10,6 +10,7 @@ class Shape
 {
 public:
     virtual std::vector<Vector3f> intersects(Ray ray) = 0;
+    virtual Vector3f normal(Vector3f point) = 0;
 };
 
 class Sphere
@@ -19,6 +20,7 @@ public:
     float radius;
 
     std::vector<float> intersects(Ray ray);
+    Vector3f normal(Vector3f point);
 };
 
 class Triangle
@@ -27,5 +29,6 @@ public:
     Vector3f vertices[3];
 
     std::vector<float> intersects(Ray ray);
+    Vector3f normal(Vector3f point);
 };
 #endif

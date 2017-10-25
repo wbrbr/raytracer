@@ -10,3 +10,8 @@ std::vector<float> Sphere::intersects(Ray ray)
 
     return solve_quadratic(a, b, c);
 }
+
+Vector3f Sphere::normal(Vector3f point)
+{
+    return (point - center).normalized();
+}
