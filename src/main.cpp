@@ -15,10 +15,16 @@ int main()
     sphere.center = Vector3f(0.f, 0.f, 0.2f);
     sphere.radius = 0.1f;
 
+    Mesh mesh(3);
+    mesh.vertices[0] = Vector3f(1.f, -1.f, 0.f);
+    mesh.vertices[1] = Vector3f(0.f, 1.f, 0.f);
+    mesh.vertices[2] = Vector3f(-1.f, -1.f, 0.f);
+
     Triangle triangle;
-    triangle.vertices[0] = Vector3f(1.f, -1.f, 0.f);
-    triangle.vertices[1] = Vector3f(0.f, 1.f, 0.f);
-    triangle.vertices[2] = Vector3f(-1.f, -1.f, 0.f);
+    triangle.mesh = &mesh;
+    triangle.indices[0] = 0;
+    triangle.indices[1] = 1;
+    triangle.indices[2] = 2;
 
     std::vector<Shape*> shapes;
     shapes.push_back(&sphere);
@@ -68,7 +74,8 @@ int main()
             // test if light is obstructed
             bool obstructed = false;
             for (auto shape : shapes) {
-                if (shape == closest_shape) continue;
+                if (shape == closest_shape) continue; // doesn't work for concave objects. not sure if it
+                                                      // matters since triangle are convex
                 auto res = shape->intersects(reverse_light_ray);
                 if (res.size() != 0) {
                     obstructed = true;

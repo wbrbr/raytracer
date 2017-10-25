@@ -4,9 +4,9 @@
 std::vector<float> Triangle::intersects(Ray ray)
 {
     auto res = std::vector<float>();
-    Vector3f v0 = vertices[0];
-    Vector3f v1 = vertices[1];
-    Vector3f v2 = vertices[2];
+    Vector3f v0 = vertex(0);
+    Vector3f v1 = vertex(1);
+    Vector3f v2 = vertex(2);
     float a,f,u,v;
     Vector3f edge1 = v1 - v0;
     Vector3f edge2 = v2 - v0;
@@ -40,7 +40,12 @@ std::vector<float> Triangle::intersects(Ray ray)
 
 Vector3f Triangle::normal(Vector3f point)
 {
-    Vector3f edge01 = vertices[1] - vertices[0];
-    Vector3f edge02 = vertices[2] - vertices[0];
+    Vector3f edge01 = vertex(1) - vertex(0);
+    Vector3f edge02 = vertex(2) - vertex(0);
     return edge01.cross(edge02).normalized();
+}
+
+Vector3f Triangle::vertex(unsigned int n)
+{
+    return mesh->vertices[indices[n]];
 }
