@@ -15,20 +15,36 @@ int main()
     sphere.center = Vector3f(0.f, 0.f, 0.2f);
     sphere.radius = 0.1f;
 
-    Mesh mesh(3);
+    Mesh mesh(5);
     mesh.vertices[0] = Vector3f(1.f, -1.f, 0.f);
     mesh.vertices[1] = Vector3f(0.f, 1.f, 0.f);
     mesh.vertices[2] = Vector3f(-1.f, -1.f, 0.f);
+    mesh.vertices[3] = Vector3f(-1.f, 1.f, 0.f);
+    mesh.vertices[4] = Vector3f(1.f, 1.f, 0.f);
 
-    Triangle triangle;
-    triangle.mesh = &mesh;
-    triangle.indices[0] = 0;
-    triangle.indices[1] = 1;
-    triangle.indices[2] = 2;
+    Triangle triangle1;
+    triangle1.mesh = &mesh;
+    triangle1.indices[0] = 0;
+    triangle1.indices[1] = 1;
+    triangle1.indices[2] = 2;
+
+    Triangle triangle2;
+    triangle2.mesh = &mesh;
+    triangle2.indices[0] = 1;
+    triangle2.indices[1] = 3;
+    triangle2.indices[2] = 2;
+
+    Triangle triangle3;
+    triangle3.mesh = &mesh;
+    triangle3.indices[0] = 4;
+    triangle3.indices[1] = 1;
+    triangle3.indices[2] = 0;
 
     std::vector<Shape*> shapes;
-    shapes.push_back(&sphere);
-    shapes.push_back(&triangle);
+    // shapes.push_back(&sphere);
+    shapes.push_back(&triangle1);
+    shapes.push_back(&triangle2);
+    shapes.push_back(&triangle3);
 
     Ray camera_ray;
     camera_ray.origin = Vector3f(0.f, 0.f, 1.f);

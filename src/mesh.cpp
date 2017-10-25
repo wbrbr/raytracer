@@ -8,5 +8,5 @@ Mesh::Mesh(unsigned int n)
 
 Mesh::~Mesh()
 {
-    delete vertices;
+    delete[] vertices;
 }
