@@ -55,8 +55,3 @@ std::vector<float> Box::intersects(Ray ray)
     res.push_back(tmax);
     return res;
 }
-
-Eigen::Vector3f Box::normal(Eigen::Vector3f point) // TODO
-{
-    return Vector3f(0.f, 0.f, 0.f);
-}

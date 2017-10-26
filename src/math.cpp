@@ -13,3 +13,23 @@ std::vector<float> solve_quadratic(float a, float b, float c)
     }
     return result;
 }
+
+Eigen::Vector3f minp(Eigen::Vector3f v0, Eigen::Vector3f v1)
+{
+    Eigen::Vector3f m;
+    m.x() = fmin(v0.x(), v1.x());
+    m.y() = fmin(v0.y(), v1.y());
+    m.z() = fmin(v0.z(), v1.z());
+
+    return m;
+}
+
+Eigen::Vector3f maxp(Eigen::Vector3f v0, Eigen::Vector3f v1)
+{
+    Eigen::Vector3f m;
+    m.x() = fmax(v0.x(), v1.x());
+    m.y() = fmax(v0.y(), v1.y());
+    m.z() = fmax(v0.z(), v1.z());
+
+    return m;
+}

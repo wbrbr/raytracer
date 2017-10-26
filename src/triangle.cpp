@@ -46,6 +46,31 @@ Vector3f Triangle::normal(Vector3f point)
     return edge01.cross(edge02).normalized();
 }
 
+Box Triangle::boundingBox()
+{
+    Eigen::Vector3f minPoint = vertex(0);
+    Eigen::Vector3f maxPoint = vertex(0);
+    for (unsigned int i = 1; i < 3; i++)
+    {
+        if (vertex(i).x() < minPoint.x()) minPoint.x() = vertex(i).x();
+        if (vertex(i).y() < minPoint.y()) minPoint.y() = vertex(i).y();
+        if (vertex(i).z() < minPoint.z()) minPoint.z() = vertex(i).z();
+
+        if (vertex(i).x() > maxPoint.x()) maxPoint.x() = vertex(i).x();
+        if (vertex(i).y() > maxPoint.y()) maxPoint.y() = vertex(i).y();
+        if (vertex(i).z() > maxPoint.z()) maxPoint.z() = vertex(i).z();
+    }
+    Box box;
+    box.minPoint = minPoint;
+    box.maxPoint = maxPoint;
+    return box;
+}
+
+Eigen::Vector3f Triangle::centroid()
+{
+    return (vertex(0) + vertex(1) + vertex(2)) / 3.f;
+}
+
 Vector3f Triangle::vertex(unsigned int n)
 {
     return mesh->vertices[indices[n]];

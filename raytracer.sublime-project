@@ -39,6 +39,18 @@
 					"shell_cmd": "make -j2 src/box.s"
 				},
 				{
+					"name": "src/bvh.o",
+					"shell_cmd": "make -j2 src/bvh.o"
+				},
+				{
+					"name": "src/bvh.i",
+					"shell_cmd": "make -j2 src/bvh.i"
+				},
+				{
+					"name": "src/bvh.s",
+					"shell_cmd": "make -j2 src/bvh.s"
+				},
+				{
 					"name": "src/image.o",
 					"shell_cmd": "make -j2 src/image.o"
 				},
