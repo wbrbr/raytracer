@@ -1,7 +1,7 @@
 #include "shape.hpp"
 #include "math.hpp"
 
-std::vector<float> Sphere::intersects(Ray ray)
+std::vector<float> Sphere::intersects(Ray ray) const
 {
     float a = 1.f;
     Eigen::Vector3f c_o = ray.origin - center;
@@ -11,12 +11,12 @@ std::vector<float> Sphere::intersects(Ray ray)
     return solve_quadratic(a, b, c);
 }
 
-Eigen::Vector3f Sphere::normal(Eigen::Vector3f point)
+Eigen::Vector3f Sphere::normal(Eigen::Vector3f point) const
 {
     return (point - center).normalized();
 }
 
-Box Sphere::boundingBox()
+Box Sphere::boundingBox() const
 {
     Box box;
     box.minPoint = center - Eigen::Vector3f(radius, radius, radius);
@@ -24,7 +24,11 @@ Box Sphere::boundingBox()
     return box;
 }
 
-Eigen::Vector3f Sphere::centroid()
+Eigen::Vector3f Sphere::centroid() const
 {
     return center;
+}
+
+Sphere::~Sphere()
+{
 }

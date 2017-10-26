@@ -1,6 +1,6 @@
 #include "shape.hpp"
 
-std::vector<float> Box::intersects(Ray ray)
+std::vector<float> Box::intersects(Ray ray) const
 {
     std::vector<float> res;
     float tmin, tmax, tymin, tymax, tzmin, tzmax;

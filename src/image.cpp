@@ -1,6 +1,7 @@
 #include "image.hpp"
 #include <iostream>
 #include <cmath>
+#include <cstring>
 
 Color Image::getPixel(unsigned int x, unsigned int y)
 {
@@ -43,7 +44,6 @@ void PngImage::write(std::string path)
         rows[y] = static_cast<png_byte*>(malloc(png_get_rowbytes(png_ptr, info_ptr)));
         for (unsigned int x = 0; x < width(); x++)
         {
-            unsigned char* ptr = static_cast<unsigned char*>(&(rows[y][x]));
             png_byte r = static_cast<unsigned char>(floor(getPixel(x, y).r * 255.f));
             png_byte g = static_cast<unsigned char>(floor(getPixel(x, y).g * 255.f));
             png_byte b = static_cast<unsigned char>(floor(getPixel(x, y).b * 255.f));
@@ -112,12 +112,12 @@ Color* PngImage::data()
     return m_pixels;
 }
 
-unsigned int PngImage::width()
+unsigned int PngImage::width() const
 {
     return m_width;
 }
 
-unsigned int PngImage::height()
+unsigned int PngImage::height() const
 {
     return m_height;
 }

@@ -9,16 +9,17 @@ class Box
 public:
     Eigen::Vector3f minPoint, maxPoint;
 
-    std::vector<float> intersects(Ray ray);
+    std::vector<float> intersects(Ray ray) const;
 };
 
 class Shape
 {
 public:
-    virtual std::vector<float> intersects(Ray ray) = 0;
-    virtual Eigen::Vector3f normal(Vector3f point) = 0;
-    virtual Box boundingBox() = 0;
-    virtual Vector3f centroid() = 0;
+    virtual ~Shape() {};
+    virtual std::vector<float> intersects(Ray ray) const = 0;
+    virtual Eigen::Vector3f normal(Vector3f point) const = 0;
+    virtual Box boundingBox() const = 0;
+    virtual Vector3f centroid() const = 0;
 };
 
 class Sphere: public Shape
@@ -27,10 +28,11 @@ public:
     Eigen::Vector3f center;
     float radius;
 
-    std::vector<float> intersects(Ray ray);
-    Eigen::Vector3f normal(Vector3f point);
-    Box boundingBox();
-    Vector3f centroid();
+    ~Sphere();
+    std::vector<float> intersects(Ray ray) const;
+    Eigen::Vector3f normal(Vector3f point) const;
+    Box boundingBox() const;
+    Vector3f centroid() const;
 };
 
 class Mesh;
@@ -40,10 +42,11 @@ public:
     Mesh* mesh;
     unsigned int indices[3];
 
-    std::vector<float> intersects(Ray ray);
-    Eigen::Vector3f normal(Vector3f point);
-    Vector3f vertex(unsigned int n);
-    Box boundingBox();
-    Vector3f centroid();
+    ~Triangle();
+    std::vector<float> intersects(Ray ray) const;
+    Eigen::Vector3f normal(Vector3f point) const;
+    Vector3f vertex(unsigned int n) const;
+    Box boundingBox() const;
+    Vector3f centroid() const;
 };
 #endif

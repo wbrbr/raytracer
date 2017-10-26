@@ -10,8 +10,8 @@ public:
     virtual void read(std::string path) = 0;
     virtual void write(std::string path) = 0;
     virtual Color* data() = 0;
-    virtual unsigned int width() = 0;
-    virtual unsigned int height() = 0;
+    virtual unsigned int width() const = 0;
+    virtual unsigned int height() const = 0;
 
     Color getPixel(unsigned int x, unsigned int y);
     void setPixel(unsigned int x, unsigned int y, Color pixel);
@@ -24,8 +24,8 @@ public:
     ~PngImage();
     void read(std::string path);
     void write(std::string path);
-    unsigned int width();
-    unsigned int height();
+    unsigned int width() const;
+    unsigned int height() const;
     Color* data();
 
 private:

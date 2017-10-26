@@ -2,7 +2,7 @@
 #include <Eigen/Dense>
 #include "mesh.hpp"
 
-std::vector<float> Triangle::intersects(Ray ray)
+std::vector<float> Triangle::intersects(Ray ray) const
 {
     auto res = std::vector<float>();
     Vector3f v0 = vertex(0);
@@ -39,14 +39,14 @@ std::vector<float> Triangle::intersects(Ray ray)
     return res;
 }
 
-Vector3f Triangle::normal(Vector3f point)
+Vector3f Triangle::normal(Vector3f point) const
 {
     Vector3f edge01 = vertex(1) - vertex(0);
     Vector3f edge02 = vertex(2) - vertex(0);
     return edge01.cross(edge02).normalized();
 }
 
-Box Triangle::boundingBox()
+Box Triangle::boundingBox() const
 {
     Eigen::Vector3f minPoint = vertex(0);
     Eigen::Vector3f maxPoint = vertex(0);
@@ -66,12 +66,17 @@ Box Triangle::boundingBox()
     return box;
 }
 
-Eigen::Vector3f Triangle::centroid()
+Eigen::Vector3f Triangle::centroid() const
 {
     return (vertex(0) + vertex(1) + vertex(2)) / 3.f;
 }
 
-Vector3f Triangle::vertex(unsigned int n)
+Vector3f Triangle::vertex(unsigned int n) const
 {
     return mesh->vertices[indices[n]];
+}
+
+Triangle::~Triangle()
+{
+    
 }
