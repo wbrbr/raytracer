@@ -86,8 +86,13 @@ std::vector<Color> renderThread(const RenderInfo info, unsigned int row_start, u
     return res;
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    if (argc < 2)
+    {
+        std::cout << "Usage: " << argv[0] << " <file>" << std::endl;
+        return 1;
+    }
     unsigned int width = 500;
     unsigned int height = 500;
     PngImage img(width, height);
@@ -99,12 +104,25 @@ int main()
     std::vector<Shape*> shapes;
 
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("cube.obj", aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+    const aiScene* scene = importer.ReadFile(argv[1], aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
     if (!scene) {
-        std::cerr << "failed to load cube.obj: " << importer.GetErrorString() << std::endl;
+        std::cerr << "failed to load " << argv[1] << ": " << importer.GetErrorString() << std::endl;
         return 1;
     }
-    aiNode* node = scene->mRootNode->FindNode("Cube");
+    aiNode* node = scene->mRootNode;
+    std::vector<aiNode*> nodestack;
+    while (node->mNumMeshes == 0)
+    {
+        if (node->mNumChildren > 0)
+        {
+            for (unsigned int i = 0; i < node->mNumChildren; i++)
+            {
+                nodestack.push_back(node->mChildren[i]);
+            }
+        }
+        node = nodestack.back();
+        nodestack.pop_back();
+    }
     unsigned int mindex = node->mMeshes[0];
     aiMesh* m = scene->mMeshes[mindex];
     Mesh mesh(m->mNumVertices);
