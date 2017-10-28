@@ -49,4 +49,17 @@ public:
     Box boundingBox() const;
     glm::vec3 centroid() const;
 };
+
+class TransformedShape: public Shape
+{
+public:
+    Shape* shape;
+    glm::mat4 transform;
+
+    ~TransformedShape();
+    std::vector<float> intersects(Ray ray) const;
+    glm::vec3 normal(glm::vec3 point) const;
+    Box boundingBox() const;
+    glm::vec3 centroid() const;
+};
 #endif

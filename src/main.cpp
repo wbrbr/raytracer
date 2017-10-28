@@ -12,6 +12,7 @@
 #include <thread>
 #include <future>
 #include <functional>
+#include <glm/gtc/matrix_transform.hpp>
 
 struct RenderInfo
 {
@@ -103,6 +104,7 @@ int main(int argc, char** argv)
     sphere.radius = 0.1f;
 
     std::vector<Shape*> shapes;
+    std::vector<Shape*> trans_shapes;
 
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(argv[1], aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
@@ -141,10 +143,15 @@ int main(int argc, char** argv)
         triangle->indices[1] = m->mFaces[i].mIndices[1];
         triangle->indices[2] = m->mFaces[i].mIndices[2];
         shapes.push_back(triangle);
+
+        auto trans_shape = new TransformedShape;
+        trans_shape->shape = triangle;
+        trans_shape->transform = glm::translate(glm::rotate(glm::mat4(), 1.f, glm::vec3(0.f, 0.f, 1.f)), glm::vec3(0.1f, -0.1f, 0.f));
+        trans_shapes.push_back(trans_shape);
     }
 
     BVHAccelerator bvh;
-    bvh.build(shapes.begin(), shapes.end());
+    bvh.build(trans_shapes.begin(), trans_shapes.end());
     std::cout << "Finished building BVH" << std::endl;
 
     Ray camera_ray;
@@ -154,7 +161,7 @@ int main(int argc, char** argv)
     light.position = glm::vec3(0.5f, 0.f, 0.5f);
 
     RenderInfo info;
-    info.shapes = shapes;
+    info.shapes = trans_shapes;
     info.light = light;
     info.width = width;
     info.height = height;
@@ -197,6 +204,10 @@ int main(int argc, char** argv)
     for (unsigned int i = 0; i < shapes.size(); i++)
     {
         delete shapes[i];
+    }
+    for (unsigned int i = 0; i < trans_shapes.size(); i++)
+    {
+        delete trans_shapes[i];
     }
     return 0;
 }
