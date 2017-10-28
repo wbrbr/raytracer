@@ -135,6 +135,29 @@ int main(int argc, char** argv)
         mesh.vertices[i] = v;
     }
 
+    aiMatrix4x4 aiTrans = node->mTransformation.Transpose();
+    aiVector3D translation, scaling;
+    aiQuaternion rot;
+    aiTrans.Decompose(scaling, rot, translation);
+    glm::mat4 trans = glm::scale(glm::mat4(), glm::vec3(scaling.x, scaling.y, scaling.z));
+    trans = glm::translate(trans, glm::vec3(translation.x, translation.y, translation.z));
+    /* trans[0][0] = aiTrans.a1;
+    trans[0][1] = aiTrans.a2;
+    trans[0][2] = aiTrans.a3;
+    trans[0][3] = aiTrans.a4;
+    trans[1][0] = aiTrans.b1;
+    trans[1][1] = aiTrans.b2;
+    trans[1][2] = aiTrans.b3;
+    trans[1][3] = aiTrans.b4;
+    trans[2][0] = aiTrans.c1;
+    trans[2][1] = aiTrans.c2;
+    trans[2][2] = aiTrans.c3;
+    trans[2][3] = aiTrans.c4;
+    trans[3][0] = aiTrans.d1;
+    trans[3][1] = aiTrans.d2;
+    trans[3][2] = aiTrans.d3;
+    trans[3][3] = aiTrans.d4;*/
+
     for (unsigned int i = 0; i < m->mNumFaces; i++)
     {
         auto triangle = new Triangle;
@@ -146,7 +169,9 @@ int main(int argc, char** argv)
 
         auto trans_shape = new TransformedShape;
         trans_shape->shape = triangle;
-        trans_shape->transform = glm::translate(glm::rotate(glm::mat4(), 1.f, glm::vec3(0.f, 0.f, 1.f)), glm::vec3(0.1f, -0.1f, 0.f));
+        // trans_shape->transform = glm::scale(glm::mat4(), glm::vec3(0.7f, 0.7f, 0.7f ));
+        trans_shape->transform = trans;
+        // trans_shape->transform = glm::mat4();
         trans_shapes.push_back(trans_shape);
     }
 
