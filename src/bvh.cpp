@@ -85,32 +85,32 @@ void BVHAccelerator::closestHitRecursive(Ray ray, unsigned int i, float* closest
 
 bool sortX(Shape* s1, Shape* s2)
 {
-    return s1->centroid().x() < s2->centroid().x();
+    return s1->centroid().x < s2->centroid().x;
 }
 
 bool sortY(Shape* s1, Shape* s2)
 {
-    return s1->centroid().y() < s2->centroid().y();
+    return s1->centroid().y < s2->centroid().y;
 }
 
 bool sortZ(Shape* s1, Shape* s2)
 {
-    return s1->centroid().z() < s2->centroid().z();
+    return s1->centroid().z < s2->centroid().z;
 }
 
 bool findX(float limit, Shape* s)
 {
-    return s->centroid().x() >= limit;
+    return s->centroid().x >= limit;
 }
 
 bool findY(float limit, Shape* s)
 {
-    return s->centroid().y() >= limit;
+    return s->centroid().y >= limit;
 }
 
 bool findZ(float limit, Shape* s)
 {
-    return s->centroid().z() >= limit;
+    return s->centroid().z >= limit;
 }
 
 void BVHAccelerator::buildRecursive(unsigned int i)
@@ -124,22 +124,22 @@ void BVHAccelerator::buildRecursive(unsigned int i)
     nodes[i].leaf = false;
 
     // find largest dimension
-    Eigen::Vector3f box_vec = nodes[i].boundingBox.maxPoint - nodes[i].boundingBox.minPoint;
+    glm::vec3 box_vec = nodes[i].boundingBox.maxPoint - nodes[i].boundingBox.minPoint;
     std::vector<Shape*>::iterator first_after_limit;
-    if (box_vec.x() >= box_vec.y() && box_vec.x() >= box_vec.z()) {
+    if (box_vec.x >= box_vec.y && box_vec.x >= box_vec.z) {
         // sort elements by X
         std::sort(nodes[i].begin, nodes[i].end, sortX);
-        float limit = (nodes[i].boundingBox.minPoint.x() + nodes[i].boundingBox.maxPoint.x()) / 2.f;
+        float limit = (nodes[i].boundingBox.minPoint.x + nodes[i].boundingBox.maxPoint.x) / 2.f;
         auto predicate = std::bind(findX, limit, std::placeholders::_1);
         first_after_limit = std::find_if(nodes[i].begin, nodes[i].end, predicate);
         if (first_after_limit == nodes[i].begin || first_after_limit == nodes[i].end) { // fall back to median split
             first_after_limit = nodes[i].begin + dist / 2;
         }
 
-    } else if (box_vec.y() >= box_vec.x() && box_vec.y() >= box_vec.z()) {
+    } else if (box_vec.y >= box_vec.x && box_vec.y >= box_vec.z) {
 
         std::sort(nodes[i].begin, nodes[i].end, sortY);
-        float limit = (nodes[i].boundingBox.minPoint.y() + nodes[i].boundingBox.maxPoint.y()) / 2.f;
+        float limit = (nodes[i].boundingBox.minPoint.y + nodes[i].boundingBox.maxPoint.y) / 2.f;
         auto predicate = std::bind(findY, limit, std::placeholders::_1);
         first_after_limit = std::find_if(nodes[i].begin, nodes[i].end, predicate);
         if (first_after_limit == nodes[i].begin || first_after_limit == nodes[i].end) { // fall back to median split
@@ -149,7 +149,7 @@ void BVHAccelerator::buildRecursive(unsigned int i)
     } else {
 
         std::sort(nodes[i].begin, nodes[i].end, sortZ);
-        float limit = (nodes[i].boundingBox.minPoint.z() + nodes[i].boundingBox.maxPoint.z()) / 2.f;
+        float limit = (nodes[i].boundingBox.minPoint.z + nodes[i].boundingBox.maxPoint.z) / 2.f;
         auto predicate = std::bind(findZ, limit, std::placeholders::_1);
         first_after_limit = std::find_if(nodes[i].begin, nodes[i].end, predicate);
         if (first_after_limit == nodes[i].begin || first_after_limit == nodes[i].end) { // fall back to median split

@@ -7,7 +7,7 @@
 class Box
 {
 public:
-    Eigen::Vector3f minPoint, maxPoint;
+    glm::vec3 minPoint, maxPoint;
 
     std::vector<float> intersects(Ray ray) const;
 };
@@ -17,22 +17,22 @@ class Shape
 public:
     virtual ~Shape() {};
     virtual std::vector<float> intersects(Ray ray) const = 0;
-    virtual Eigen::Vector3f normal(Vector3f point) const = 0;
+    virtual glm::vec3 normal(glm::vec3 point) const = 0;
     virtual Box boundingBox() const = 0;
-    virtual Vector3f centroid() const = 0;
+    virtual glm::vec3 centroid() const = 0;
 };
 
 class Sphere: public Shape
 {
 public:
-    Eigen::Vector3f center;
+    glm::vec3 center;
     float radius;
 
     ~Sphere();
     std::vector<float> intersects(Ray ray) const;
-    Eigen::Vector3f normal(Vector3f point) const;
+    glm::vec3 normal(glm::vec3 point) const;
     Box boundingBox() const;
-    Vector3f centroid() const;
+    glm::vec3 centroid() const;
 };
 
 class Mesh;
@@ -44,9 +44,9 @@ public:
 
     ~Triangle();
     std::vector<float> intersects(Ray ray) const;
-    Eigen::Vector3f normal(Vector3f point) const;
-    Vector3f vertex(unsigned int n) const;
+    glm::vec3 normal(glm::vec3 point) const;
+    glm::vec3 vertex(unsigned int n) const;
     Box boundingBox() const;
-    Vector3f centroid() const;
+    glm::vec3 centroid() const;
 };
 #endif

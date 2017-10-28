@@ -2,9 +2,9 @@
 #define MATH_HPP
 #include <vector>
 #include <cmath>
-#include <Eigen/Core>
+#include <glm/vec3.hpp>
 
 std::vector<float> solve_quadratic(float a, float b, float c);
-Eigen::Vector3f minp(Eigen::Vector3f v0, Eigen::Vector3f v1);
-Eigen::Vector3f maxp(Eigen::Vector3f v0, Eigen::Vector3f v1);
+glm::vec3 minp(glm::vec3 v0, glm::vec3 v1);
+glm::vec3 maxp(glm::vec3 v0, glm::vec3 v1);
 #endif

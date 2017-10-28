@@ -11,6 +11,7 @@
 #include <assimp/postprocess.h>
 #include <thread>
 #include <future>
+#include <functional>
 
 struct RenderInfo
 {
@@ -18,7 +19,7 @@ struct RenderInfo
     Light light;
     BVHAccelerator bvh;
     unsigned int width, height;
-    Vector3f camera_position;
+    glm::vec3 camera_position;
 };
 
 std::vector<Color> renderThread(const RenderInfo info, unsigned int row_start, unsigned int row_end)
@@ -37,7 +38,7 @@ std::vector<Color> renderThread(const RenderInfo info, unsigned int row_start, u
             float right_x = static_cast<float>(x+1) * 2.f / static_cast<float>(info.width) - 1.f;
             float world_x = (left_x + right_x) / 2.f;
 
-            camera_ray.setOrientation(Vector3f(world_x, world_y, -1.f));
+            camera_ray.setOrientation(glm::vec3(world_x, world_y, -1.f));
 
             float closest = INFINITY;
             Shape* closest_shape;
@@ -47,7 +48,7 @@ std::vector<Color> renderThread(const RenderInfo info, unsigned int row_start, u
                 res.push_back(Color{0.f, 0.f, 0.f, 1.f});
                 continue;
             }
-            Eigen::Vector3f intersection_point = camera_ray.origin + camera_ray.orientation * closest;
+            glm::vec3 intersection_point = camera_ray.origin + camera_ray.orientation * closest;
             auto normal = closest_shape->normal(intersection_point);
             Ray reverse_light_ray = Ray::fromPoints(intersection_point, info.light.position);
 
@@ -60,9 +61,9 @@ std::vector<Color> renderThread(const RenderInfo info, unsigned int row_start, u
 
             Ray light_ray = Ray::fromPoints(info.light.position, intersection_point);
             
-            Eigen::Vector3f reflected = light_ray.orientation - 2.f * (normal.dot(light_ray.orientation)) * normal;
-            Eigen::Vector3f v = -camera_ray.orientation;
-            float v_dot_r = v.dot(reflected);
+            glm::vec3 reflected = light_ray.orientation - 2.f * glm::dot(normal, light_ray.orientation) * normal;
+            glm::vec3 v = -camera_ray.orientation;
+            float v_dot_r = glm::dot(v, reflected);
             float specular_intensity;
             if (v_dot_r < 0.f) {
                 specular_intensity = 0.f;
@@ -70,7 +71,7 @@ std::vector<Color> renderThread(const RenderInfo info, unsigned int row_start, u
                 specular_intensity = pow(v_dot_r, 50);
             }
 
-            float diffuse_intensity = normal.dot(-light_ray.orientation);
+            float diffuse_intensity = glm::dot(normal, -light_ray.orientation);
             if (diffuse_intensity < 0.f) {
                 diffuse_intensity = 0.f;
             }
@@ -98,7 +99,7 @@ int main(int argc, char** argv)
     PngImage img(width, height);
 
     Sphere sphere;
-    sphere.center = Vector3f(0.f, 0.f, 0.2f);
+    sphere.center = glm::vec3(0.f, 0.f, 0.2f);
     sphere.radius = 0.1f;
 
     std::vector<Shape*> shapes;
@@ -128,7 +129,7 @@ int main(int argc, char** argv)
     Mesh mesh(m->mNumVertices);
     for (unsigned int i = 0; i < m->mNumVertices; i++)
     {
-        Vector3f v(m->mVertices[i].x, m->mVertices[i].y, m->mVertices[i].z);
+        glm::vec3 v(m->mVertices[i].x, m->mVertices[i].y, m->mVertices[i].z);
         mesh.vertices[i] = v;
     }
 
@@ -147,10 +148,10 @@ int main(int argc, char** argv)
     std::cout << "Finished building BVH" << std::endl;
 
     Ray camera_ray;
-    camera_ray.origin = Vector3f(0.f, 0.f, 1.f);
+    camera_ray.origin = glm::vec3(0.f, 0.f, 1.f);
 
     Light light;
-    light.position = Eigen::Vector3f(0.5f, 0.f, 0.5f);
+    light.position = glm::vec3(0.5f, 0.f, 0.5f);
 
     RenderInfo info;
     info.shapes = shapes;
@@ -158,7 +159,7 @@ int main(int argc, char** argv)
     info.width = width;
     info.height = height;
     info.bvh = bvh;
-    info.camera_position = Vector3f(0.f, 0.f, 1.f);
+    info.camera_position = glm::vec3(0.f, 0.f, 1.f);
 
     const unsigned int threads_num = 10;
     std::vector<std::future<std::vector<Color>>> futures;

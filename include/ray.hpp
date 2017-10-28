@@ -1,22 +1,21 @@
 #ifndef RAY_HPP
 #define RAY_HPP
-#include <Eigen/Core>
-using namespace Eigen;
+#include <glm/glm.hpp>
 
 struct Ray
 {
-    Vector3f origin, orientation;
-    static Ray fromPoints(Eigen::Vector3f O, Eigen::Vector3f M)
+    glm::vec3 origin, orientation;
+    static Ray fromPoints(glm::vec3 O, glm::vec3 M)
     {
         Ray r;
         r.origin = O;
-        r.orientation = (M - O).normalized();
+        r.orientation = glm::normalize(M - O);
         return r;
     }
 
-    void setOrientation(Vector3f o)
+    void setOrientation(glm::vec3 o)
     {
-        orientation = o.normalized();
+        orientation = glm::normalize(o);
     }
 };
 #endif

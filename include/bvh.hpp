@@ -2,7 +2,6 @@
 #define BVH_HPP
 #include "shape.hpp"
 #include "ray.hpp"
-#include <Eigen/Core>
 #include <vector>
 
 struct BVHNode

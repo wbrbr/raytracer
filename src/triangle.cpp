@@ -1,37 +1,36 @@
 #include "shape.hpp"
-#include <Eigen/Dense>
 #include "mesh.hpp"
 
 std::vector<float> Triangle::intersects(Ray ray) const
 {
     auto res = std::vector<float>();
-    Vector3f v0 = vertex(0);
-    Vector3f v1 = vertex(1);
-    Vector3f v2 = vertex(2);
+    glm::vec3 v0 = vertex(0);
+    glm::vec3 v1 = vertex(1);
+    glm::vec3 v2 = vertex(2);
     float a,f,u,v;
-    Vector3f edge1 = v1 - v0;
-    Vector3f edge2 = v2 - v0;
-    Vector3f h = ray.orientation.cross(edge2);
-    a = edge1.dot(h);
+    glm::vec3 edge1 = v1 - v0;
+    glm::vec3 edge2 = v2 - v0;
+    glm::vec3 h = glm::cross(ray.orientation, edge2);
+    a = glm::dot(edge1, h);
     if (a == 0.f) { // use epsilon
         return res;
     }
 
     f = 1.f / a;
-    Vector3f s = ray.origin - v0;
-    u = f * s.dot(h);
+    glm::vec3 s = ray.origin - v0;
+    u = f * glm::dot(s, h);
     if (u < 0.f || u > 1.f) {
         return res;
     }
 
-    Vector3f q = s.cross(edge1);
-    v = f * ray.orientation.dot(q);
+    glm::vec3 q = glm::cross(s, edge1);
+    v = f * glm::dot(ray.orientation, q);
     if (v < 0.f || u + v > 1.f) {
         return res;
     }
 
     // there is an intersection
-    float t = f * edge2.dot(q);
+    float t = f * glm::dot(edge2, q);
     if (t <= 0.f) {
         return res;
     }
@@ -39,26 +38,26 @@ std::vector<float> Triangle::intersects(Ray ray) const
     return res;
 }
 
-Vector3f Triangle::normal(Vector3f point) const
+glm::vec3 Triangle::normal(glm::vec3 point) const
 {
-    Vector3f edge01 = vertex(1) - vertex(0);
-    Vector3f edge02 = vertex(2) - vertex(0);
-    return edge01.cross(edge02).normalized();
+    glm::vec3 edge01 = vertex(1) - vertex(0);
+    glm::vec3 edge02 = vertex(2) - vertex(0);
+    return glm::normalize(glm::cross(edge01, edge02));
 }
 
 Box Triangle::boundingBox() const
 {
-    Eigen::Vector3f minPoint = vertex(0);
-    Eigen::Vector3f maxPoint = vertex(0);
+    glm::vec3 minPoint = vertex(0);
+    glm::vec3 maxPoint = vertex(0);
     for (unsigned int i = 1; i < 3; i++)
     {
-        if (vertex(i).x() < minPoint.x()) minPoint.x() = vertex(i).x();
-        if (vertex(i).y() < minPoint.y()) minPoint.y() = vertex(i).y();
-        if (vertex(i).z() < minPoint.z()) minPoint.z() = vertex(i).z();
+        if (vertex(i).x < minPoint.x) minPoint.x = vertex(i).x;
+        if (vertex(i).y < minPoint.y) minPoint.y = vertex(i).y;
+        if (vertex(i).z < minPoint.z) minPoint.z = vertex(i).z;
 
-        if (vertex(i).x() > maxPoint.x()) maxPoint.x() = vertex(i).x();
-        if (vertex(i).y() > maxPoint.y()) maxPoint.y() = vertex(i).y();
-        if (vertex(i).z() > maxPoint.z()) maxPoint.z() = vertex(i).z();
+        if (vertex(i).x > maxPoint.x) maxPoint.x = vertex(i).x;
+        if (vertex(i).y > maxPoint.y) maxPoint.y = vertex(i).y;
+        if (vertex(i).z > maxPoint.z) maxPoint.z = vertex(i).z;
     }
     Box box;
     box.minPoint = minPoint;
@@ -66,12 +65,12 @@ Box Triangle::boundingBox() const
     return box;
 }
 
-Eigen::Vector3f Triangle::centroid() const
+glm::vec3 Triangle::centroid() const
 {
     return (vertex(0) + vertex(1) + vertex(2)) / 3.f;
 }
 
-Vector3f Triangle::vertex(unsigned int n) const
+glm::vec3 Triangle::vertex(unsigned int n) const
 {
     return mesh->vertices[indices[n]];
 }
