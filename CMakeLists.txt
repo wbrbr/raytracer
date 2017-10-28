@@ -8,7 +8,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 include_directories("${PROJECT_SOURCE_DIR}/include")
 file(GLOB SRCS "src/*.cpp")
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 add_executable(raytracer ${SRCS})
 
@@ -21,7 +21,7 @@ include_directories(${ASSIMP_INCLUDE_DIR})
 target_link_libraries(raytracer ${PNG_LIBRARY} assimp pthread)
 
 if (CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif (CMAKE_COMPILER_IS_GNUCC)
 
 set(CMAKE_BUILD_TYPE RelWithDebInfo)

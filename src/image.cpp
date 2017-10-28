@@ -20,7 +20,7 @@ PngImage::PngImage(unsigned int w, unsigned int h): m_width(w), m_height(h)
 
 PngImage::~PngImage()
 {
-    delete m_pixels;
+    delete[] m_pixels;
 }
 
 void PngImage::write(std::string path)

@@ -17,13 +17,13 @@
 struct RenderInfo
 {
     std::vector<Shape*> shapes;
-    Light light;
+    std::vector<Light> lights;
     BVHAccelerator bvh;
     unsigned int width, height;
     glm::vec3 camera_position;
 };
 
-std::vector<Color> renderThread(const RenderInfo info, unsigned int row_start, unsigned int row_end)
+std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, unsigned int row_end)
 {
     std::vector<Color> res;
     Ray camera_ray;
@@ -51,36 +51,51 @@ std::vector<Color> renderThread(const RenderInfo info, unsigned int row_start, u
             }
             glm::vec3 intersection_point = camera_ray.origin + camera_ray.orientation * closest;
             auto normal = closest_shape->normal(intersection_point);
-            Ray reverse_light_ray = Ray::fromPoints(intersection_point, info.light.position);
 
-            float bias = 0.001f;
-            reverse_light_ray.origin += normal * bias;
-            if (info.bvh.closestHit(reverse_light_ray, nullptr, nullptr)) {
-                res.push_back(Color{0.f, 0.f, 0.f, 1.f});
-                continue;
+            auto out_color = Color{0.f, 0.f, 0.f, 1.f};
+
+            for (auto light : info.lights)
+            { 
+                Ray reverse_light_ray = Ray::fromPoints(intersection_point, light.position);
+
+                float bias = 0.001f;
+                reverse_light_ray.origin += normal * bias;
+                if (info.bvh.closestHit(reverse_light_ray, nullptr, nullptr)) {
+                    continue;
+                }
+
+                Ray light_ray = Ray::fromPoints(light.position, intersection_point);
+                
+                glm::vec3 reflected = light_ray.orientation - 2.f * glm::dot(normal, light_ray.orientation) * normal;
+                glm::vec3 v = -camera_ray.orientation;
+                float v_dot_r = glm::dot(v, reflected);
+                float specular_intensity;
+                if (v_dot_r < 0.f) {
+                    specular_intensity = 0.f;
+                } else {
+                    specular_intensity = pow(v_dot_r, 50);
+                }
+
+                float diffuse_intensity = glm::dot(normal, -light_ray.orientation);
+                if (diffuse_intensity < 0.f) {
+                    diffuse_intensity = 0.f;
+                }
+
+                float kd = 0.8f;
+                float ks = 0.2f;
+                float light_distance = glm::length(intersection_point - light.position);
+                float diffuse_factor = diffuse_intensity * light.intensity * kd / (light_distance * light_distance);
+                float specular_factor = specular_intensity * light.intensity * ks / (light_distance * light_distance);
+
+                auto color = Color{1.f, 0.3f, 0.3f};
+                out_color.r += light.color.r * (diffuse_factor * color.r + specular_factor);
+                out_color.g += light.color.g * (diffuse_factor * color.g + specular_factor);
+                out_color.b += light.color.b * (diffuse_factor * color.b + specular_factor);
             }
-
-            Ray light_ray = Ray::fromPoints(info.light.position, intersection_point);
-            
-            glm::vec3 reflected = light_ray.orientation - 2.f * glm::dot(normal, light_ray.orientation) * normal;
-            glm::vec3 v = -camera_ray.orientation;
-            float v_dot_r = glm::dot(v, reflected);
-            float specular_intensity;
-            if (v_dot_r < 0.f) {
-                specular_intensity = 0.f;
-            } else {
-                specular_intensity = pow(v_dot_r, 50);
-            }
-
-            float diffuse_intensity = glm::dot(normal, -light_ray.orientation);
-            if (diffuse_intensity < 0.f) {
-                diffuse_intensity = 0.f;
-            }
-
-            float kd = 0.8f;
-            float ks = 0.2f;
-
-            res.push_back(Color{diffuse_intensity * kd + specular_intensity * ks, specular_intensity * ks, specular_intensity * ks, 1.f});
+            out_color.r = fmin(out_color.r, 1.f);
+            out_color.g = fmin(out_color.g, 1.f);
+            out_color.b = fmin(out_color.b, 1.f);
+            res.push_back(out_color);
 
         }
 
@@ -101,7 +116,7 @@ int main(int argc, char** argv)
 
     Sphere sphere;
     sphere.center = glm::vec3(0.f, 0.f, 0.2f);
-    sphere.radius = 0.1f;
+    sphere.radius = 0.2f;
 
     std::vector<Shape*> shapes;
     std::vector<Shape*> trans_shapes;
@@ -136,12 +151,8 @@ int main(int argc, char** argv)
     }
 
     aiMatrix4x4 aiTrans = node->mTransformation.Transpose();
-    aiVector3D translation, scaling;
-    aiQuaternion rot;
-    aiTrans.Decompose(scaling, rot, translation);
-    glm::mat4 trans = glm::scale(glm::mat4(), glm::vec3(scaling.x, scaling.y, scaling.z));
-    trans = glm::translate(trans, glm::vec3(translation.x, translation.y, translation.z));
-    /* trans[0][0] = aiTrans.a1;
+    glm::mat4 trans;
+    trans[0][0] = aiTrans.a1;
     trans[0][1] = aiTrans.a2;
     trans[0][2] = aiTrans.a3;
     trans[0][3] = aiTrans.a4;
@@ -156,7 +167,7 @@ int main(int argc, char** argv)
     trans[3][0] = aiTrans.d1;
     trans[3][1] = aiTrans.d2;
     trans[3][2] = aiTrans.d3;
-    trans[3][3] = aiTrans.d4;*/
+    trans[3][3] = aiTrans.d4;
 
     for (unsigned int i = 0; i < m->mNumFaces; i++)
     {
@@ -169,9 +180,7 @@ int main(int argc, char** argv)
 
         auto trans_shape = new TransformedShape;
         trans_shape->shape = triangle;
-        // trans_shape->transform = glm::scale(glm::mat4(), glm::vec3(0.7f, 0.7f, 0.7f ));
         trans_shape->transform = trans;
-        // trans_shape->transform = glm::mat4();
         trans_shapes.push_back(trans_shape);
     }
 
@@ -184,10 +193,19 @@ int main(int argc, char** argv)
 
     Light light;
     light.position = glm::vec3(0.5f, 0.f, 0.5f);
+    light.color = Color{1.f, 1.f, 1.f};
+    light.intensity = 0.1f;
+
+    /* Light light2;
+    light.position = glm::vec3(-0.2f, 1.f, 0.2f);
+    light.color = Color{0.5f, 0.5f, 1.f};
+    light.intensity = 0.1f; */
 
     RenderInfo info;
     info.shapes = trans_shapes;
-    info.light = light;
+    info.lights = std::vector<Light>();
+    info.lights.push_back(light);
+    // info.lights.push_back(light2);
     info.width = width;
     info.height = height;
     info.bvh = bvh;
