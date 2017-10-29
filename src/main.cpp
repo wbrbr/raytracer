@@ -87,7 +87,7 @@ std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, 
                 float diffuse_factor = diffuse_intensity * light.intensity * kd / (light_distance * light_distance);
                 float specular_factor = specular_intensity * light.intensity * ks / (light_distance * light_distance);
 
-                auto color = Color{1.f, 0.3f, 0.3f};
+                Color color = closest_shape->material->color;
                 out_color.r += light.color.r * (diffuse_factor * color.r + specular_factor);
                 out_color.g += light.color.g * (diffuse_factor * color.g + specular_factor);
                 out_color.b += light.color.b * (diffuse_factor * color.b + specular_factor);
@@ -171,6 +171,9 @@ int main(int argc, char** argv)
     trans[3][2] = aiTrans.d3;
     trans[3][3] = aiTrans.d4;
 
+    Material material;
+    material.color = Color{1.f, 0.3f, 0.3f};
+
     for (unsigned int i = 0; i < m->mNumFaces; i++)
     {
         auto triangle = new Triangle;
@@ -183,6 +186,7 @@ int main(int argc, char** argv)
         auto trans_shape = new TransformedShape;
         trans_shape->shape = triangle;
         trans_shape->transform = trans;
+        trans_shape->material = &material;
         trans_shapes.push_back(trans_shape);
     }
 

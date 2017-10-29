@@ -4,6 +4,7 @@
 #include "ray.hpp"
 #include "math.hpp"
 #include "vertex.hpp"
+#include "material.hpp"
 
 class Box
 {
@@ -21,6 +22,8 @@ public:
     virtual glm::vec3 normal(glm::vec3 point) const = 0;
     virtual Box boundingBox() const = 0;
     virtual glm::vec3 centroid() const = 0;
+
+    Material* material;
 };
 
 class Sphere: public Shape
