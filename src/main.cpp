@@ -196,16 +196,16 @@ int main(int argc, char** argv)
     light.color = Color{1.f, 1.f, 1.f};
     light.intensity = 0.1f;
 
-    /* Light light2;
-    light.position = glm::vec3(-0.2f, 1.f, 0.2f);
-    light.color = Color{0.5f, 0.5f, 1.f};
-    light.intensity = 0.1f; */
+    Light light2;
+    light2.position = glm::vec3(-0.2f, 0.5f, 0.5f);
+    light2.color = Color{0.f, 0.5f, 1.f};
+    light2.intensity = 0.1f;
 
     RenderInfo info;
     info.shapes = trans_shapes;
     info.lights = std::vector<Light>();
     info.lights.push_back(light);
-    // info.lights.push_back(light2);
+    info.lights.push_back(light2);
     info.width = width;
     info.height = height;
     info.bvh = bvh;
