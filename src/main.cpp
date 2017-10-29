@@ -146,7 +146,9 @@ int main(int argc, char** argv)
     Mesh mesh(m->mNumVertices);
     for (unsigned int i = 0; i < m->mNumVertices; i++)
     {
-        glm::vec3 v(m->mVertices[i].x, m->mVertices[i].y, m->mVertices[i].z);
+        Vertex v;
+        v.position = glm::vec3(m->mVertices[i].x, m->mVertices[i].y, m->mVertices[i].z);
+        v.normal = glm::normalize(glm::vec3(m->mNormals[i].x, m->mNormals[i].y, m->mNormals[i].z));
         mesh.vertices[i] = v;
     }
 

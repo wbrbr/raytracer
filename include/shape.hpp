@@ -3,6 +3,7 @@
 #include <utility>
 #include "ray.hpp"
 #include "math.hpp"
+#include "vertex.hpp"
 
 class Box
 {
@@ -45,9 +46,10 @@ public:
     ~Triangle();
     std::vector<float> intersects(Ray ray) const;
     glm::vec3 normal(glm::vec3 point) const;
-    glm::vec3 vertex(unsigned int n) const;
     Box boundingBox() const;
     glm::vec3 centroid() const;
+
+    Vertex vertex(unsigned int n) const;
 };
 
 class TransformedShape: public Shape

@@ -4,9 +4,9 @@
 std::vector<float> Triangle::intersects(Ray ray) const
 {
     auto res = std::vector<float>();
-    glm::vec3 v0 = vertex(0);
-    glm::vec3 v1 = vertex(1);
-    glm::vec3 v2 = vertex(2);
+    glm::vec3 v0 = vertex(0).position;
+    glm::vec3 v1 = vertex(1).position;
+    glm::vec3 v2 = vertex(2).position;
     float a,f,u,v;
     glm::vec3 edge1 = v1 - v0;
     glm::vec3 edge2 = v2 - v0;
@@ -40,24 +40,19 @@ std::vector<float> Triangle::intersects(Ray ray) const
 
 glm::vec3 Triangle::normal(glm::vec3 point) const
 {
-    glm::vec3 edge01 = vertex(1) - vertex(0);
-    glm::vec3 edge02 = vertex(2) - vertex(0);
+    glm::vec3 edge01 = vertex(1).position - vertex(0).position;
+    glm::vec3 edge02 = vertex(2).position - vertex(0).position;
     return glm::normalize(glm::cross(edge01, edge02));
 }
 
 Box Triangle::boundingBox() const
 {
-    glm::vec3 minPoint = vertex(0);
-    glm::vec3 maxPoint = vertex(0);
+    glm::vec3 minPoint = vertex(0).position;
+    glm::vec3 maxPoint = vertex(0).position;
     for (unsigned int i = 1; i < 3; i++)
     {
-        if (vertex(i).x < minPoint.x) minPoint.x = vertex(i).x;
-        if (vertex(i).y < minPoint.y) minPoint.y = vertex(i).y;
-        if (vertex(i).z < minPoint.z) minPoint.z = vertex(i).z;
-
-        if (vertex(i).x > maxPoint.x) maxPoint.x = vertex(i).x;
-        if (vertex(i).y > maxPoint.y) maxPoint.y = vertex(i).y;
-        if (vertex(i).z > maxPoint.z) maxPoint.z = vertex(i).z;
+        minPoint = minp(minPoint, vertex(i).position);
+        maxPoint = maxp(maxPoint, vertex(i).position);
     }
     Box box;
     box.minPoint = minPoint;
@@ -67,10 +62,10 @@ Box Triangle::boundingBox() const
 
 glm::vec3 Triangle::centroid() const
 {
-    return (vertex(0) + vertex(1) + vertex(2)) / 3.f;
+    return (vertex(0).position + vertex(1).position + vertex(2).position) / 3.f;
 }
 
-glm::vec3 Triangle::vertex(unsigned int n) const
+Vertex Triangle::vertex(unsigned int n) const
 {
     return mesh->vertices[indices[n]];
 }

@@ -1,11 +1,12 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 #include "shape.hpp"
+#include "vertex.hpp"
 
 class Mesh
 {
 public:
-    glm::vec3* vertices;
+    Vertex* vertices;
     unsigned int size;
     Mesh(unsigned int n);
     ~Mesh();
