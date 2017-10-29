@@ -44,7 +44,8 @@ class Mesh;
 class Triangle: public Shape
 {
 public:
-    Mesh* mesh;
+    std::vector<Mesh>* meshes;
+    unsigned int mesh_id;
     unsigned int indices[3];
 
     ~Triangle();
@@ -54,6 +55,7 @@ public:
     glm::vec3 centroid() const;
 
     Vertex vertex(unsigned int n) const;
+    Mesh& mesh() const;
 };
 
 class TransformedShape: public Shape

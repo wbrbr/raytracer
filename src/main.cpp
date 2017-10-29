@@ -127,10 +127,16 @@ int main(int argc, char** argv)
     light2.color = Color{0.f, 0.5f, 1.f};
     light2.intensity = 0.1f;
 
+    Light light3;
+    light3.position = glm::vec3(-0.5f, -0.2f, 0.5f);
+    light3.color = Color{0.1f, 1.f, 0.1f};
+    light3.intensity = 0.1f;
+
     Scene scene;
     scene.load(argv[1]);
     scene.lights.push_back(light);
     scene.lights.push_back(light2);
+    scene.lights.push_back(light3);
 
     RenderInfo info;
     info.width = width;

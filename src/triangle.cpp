@@ -67,7 +67,12 @@ glm::vec3 Triangle::centroid() const
 
 Vertex Triangle::vertex(unsigned int n) const
 {
-    return mesh->vertices[indices[n]];
+    return mesh().vertices[indices[n]];
+}
+
+Mesh& Triangle::mesh() const
+{
+    return (*meshes)[mesh_id];
 }
 
 Triangle::~Triangle()

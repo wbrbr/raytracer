@@ -29,7 +29,7 @@ void BVHAccelerator::build(std::vector<Shape*>::iterator begin, std::vector<Shap
     root.begin = shapes.begin();
     root.end = shapes.end();
     root.leaf = false;
-    root.boundingBox = computeBoundingBox(shapes.begin(), shapes.end());
+    root.boundingBox = computeBoundingBox(root.begin, root.end);
     nodes.push_back(root);
     buildRecursive(0);
 }

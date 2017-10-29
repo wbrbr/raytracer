@@ -15,7 +15,6 @@ public:
     Scene();
     ~Scene();
     void load(std::string path);
-    void loadAssimp(std::string path);
     std::vector<Light> lights;
     std::vector<Shape*> shapes;
     std::vector<Mesh> meshes;
