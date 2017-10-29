@@ -1,6 +1,7 @@
 #ifndef SHAPE_HPP
 #define SHAPE_HPP
 #include <utility>
+#include <memory>
 #include "ray.hpp"
 #include "math.hpp"
 #include "vertex.hpp"
@@ -58,7 +59,7 @@ public:
 class TransformedShape: public Shape
 {
 public:
-    Shape* shape;
+    std::shared_ptr<Shape> shape;
     glm::mat4 transform;
 
     ~TransformedShape();

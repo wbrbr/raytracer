@@ -5,10 +5,8 @@
 #include "light.hpp"
 #include "mesh.hpp"
 #include "bvh.hpp"
+#include "scene.hpp"
 #include <iostream>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 #include <thread>
 #include <future>
 #include <functional>
@@ -16,11 +14,9 @@
 
 struct RenderInfo
 {
-    std::vector<Shape*> shapes;
-    std::vector<Light> lights;
-    BVHAccelerator bvh;
     unsigned int width, height;
     glm::vec3 camera_position;
+    const Scene* scene;
 };
 
 std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, unsigned int row_end)
@@ -43,7 +39,7 @@ std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, 
 
             float closest = INFINITY;
             Shape* closest_shape;
-            bool inter = info.bvh.closestHit(camera_ray, &closest, &closest_shape);
+            bool inter = info.scene->bvh.closestHit(camera_ray, &closest, &closest_shape);
 
             if (!inter) { // no intersection
                 res.push_back(Color{0.f, 0.f, 0.f, 1.f});
@@ -54,13 +50,13 @@ std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, 
 
             auto out_color = Color{0.f, 0.f, 0.f, 1.f};
 
-            for (auto light : info.lights)
+            for (auto light : info.scene->lights)
             { 
                 Ray reverse_light_ray = Ray::fromPoints(intersection_point, light.position);
 
                 float bias = 0.001f;
                 reverse_light_ray.origin += normal * bias;
-                if (info.bvh.closestHit(reverse_light_ray, nullptr, nullptr)) {
+                if (info.scene->bvh.closestHit(reverse_light_ray, nullptr, nullptr)) {
                     continue;
                 }
 
@@ -118,82 +114,6 @@ int main(int argc, char** argv)
     sphere.center = glm::vec3(0.f, 0.f, 0.2f);
     sphere.radius = 0.2f;
 
-    std::vector<Shape*> shapes;
-    std::vector<Shape*> trans_shapes;
-
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(argv[1], aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
-    if (!scene) {
-        std::cerr << "failed to load " << argv[1] << ": " << importer.GetErrorString() << std::endl;
-        return 1;
-    }
-    aiNode* node = scene->mRootNode;
-    std::vector<aiNode*> nodestack;
-    while (node->mNumMeshes == 0)
-    {
-        if (node->mNumChildren > 0)
-        {
-            for (unsigned int i = 0; i < node->mNumChildren; i++)
-            {
-                nodestack.push_back(node->mChildren[i]);
-            }
-        }
-        node = nodestack.back();
-        nodestack.pop_back();
-    }
-    unsigned int mindex = node->mMeshes[0];
-    aiMesh* m = scene->mMeshes[mindex];
-    Mesh mesh(m->mNumVertices);
-    for (unsigned int i = 0; i < m->mNumVertices; i++)
-    {
-        Vertex v;
-        v.position = glm::vec3(m->mVertices[i].x, m->mVertices[i].y, m->mVertices[i].z);
-        v.normal = glm::normalize(glm::vec3(m->mNormals[i].x, m->mNormals[i].y, m->mNormals[i].z));
-        mesh.vertices[i] = v;
-    }
-
-    aiMatrix4x4 aiTrans = node->mTransformation.Transpose();
-    glm::mat4 trans;
-    trans[0][0] = aiTrans.a1;
-    trans[0][1] = aiTrans.a2;
-    trans[0][2] = aiTrans.a3;
-    trans[0][3] = aiTrans.a4;
-    trans[1][0] = aiTrans.b1;
-    trans[1][1] = aiTrans.b2;
-    trans[1][2] = aiTrans.b3;
-    trans[1][3] = aiTrans.b4;
-    trans[2][0] = aiTrans.c1;
-    trans[2][1] = aiTrans.c2;
-    trans[2][2] = aiTrans.c3;
-    trans[2][3] = aiTrans.c4;
-    trans[3][0] = aiTrans.d1;
-    trans[3][1] = aiTrans.d2;
-    trans[3][2] = aiTrans.d3;
-    trans[3][3] = aiTrans.d4;
-
-    Material material;
-    material.color = Color{1.f, 0.3f, 0.3f};
-
-    for (unsigned int i = 0; i < m->mNumFaces; i++)
-    {
-        auto triangle = new Triangle;
-        triangle->mesh = &mesh;
-        triangle->indices[0] = m->mFaces[i].mIndices[0];
-        triangle->indices[1] = m->mFaces[i].mIndices[1];
-        triangle->indices[2] = m->mFaces[i].mIndices[2];
-        shapes.push_back(triangle);
-
-        auto trans_shape = new TransformedShape;
-        trans_shape->shape = triangle;
-        trans_shape->transform = trans;
-        trans_shape->material = &material;
-        trans_shapes.push_back(trans_shape);
-    }
-
-    BVHAccelerator bvh;
-    bvh.build(trans_shapes.begin(), trans_shapes.end());
-    std::cout << "Finished building BVH" << std::endl;
-
     Ray camera_ray;
     camera_ray.origin = glm::vec3(0.f, 0.f, 1.f);
 
@@ -207,15 +127,16 @@ int main(int argc, char** argv)
     light2.color = Color{0.f, 0.5f, 1.f};
     light2.intensity = 0.1f;
 
+    Scene scene;
+    scene.load(argv[1]);
+    scene.lights.push_back(light);
+    scene.lights.push_back(light2);
+
     RenderInfo info;
-    info.shapes = trans_shapes;
-    info.lights = std::vector<Light>();
-    info.lights.push_back(light);
-    info.lights.push_back(light2);
     info.width = width;
     info.height = height;
-    info.bvh = bvh;
     info.camera_position = glm::vec3(0.f, 0.f, 1.f);
+    info.scene = &scene;
 
     const unsigned int threads_num = 10;
     std::vector<std::future<std::vector<Color>>> futures;
@@ -250,13 +171,5 @@ int main(int argc, char** argv)
     std::cout << "Finished raycasting" << std::endl;
     img.write("out.png");
     std::cout << "Done" << std::endl;
-    for (unsigned int i = 0; i < shapes.size(); i++)
-    {
-        delete shapes[i];
-    }
-    for (unsigned int i = 0; i < trans_shapes.size(); i++)
-    {
-        delete trans_shapes[i];
-    }
     return 0;
 }

@@ -1,14 +1,11 @@
 #include "mesh.hpp"
 
-Mesh::Mesh(unsigned int n)
+Mesh::Mesh(unsigned int n): size(n), vertices(n)
 {
-    size = n;
-    vertices = new Vertex[n];
 }
 
 Mesh::~Mesh()
 {
-    delete[] vertices;
 }
 
 Box Mesh::boundingBox()

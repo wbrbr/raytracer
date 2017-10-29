@@ -6,7 +6,7 @@
 class Mesh
 {
 public:
-    Vertex* vertices;
+    std::vector<Vertex> vertices;
     unsigned int size;
     Mesh(unsigned int n);
     ~Mesh();
