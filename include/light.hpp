@@ -23,4 +23,14 @@ public:
 
     glm::vec3 position;
 };
+
+class DirectionalLight: public Light
+{
+public:
+    ~DirectionalLight();
+    Ray lightRay(glm::vec3 point) const;
+    bool atPoint(glm::vec3 point, const BVHAccelerator& bvh, float* out_intensity) const;
+
+    glm::vec3 orientation;
+};
 #endif

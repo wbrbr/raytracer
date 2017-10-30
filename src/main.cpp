@@ -125,9 +125,9 @@ int main(int argc, char** argv)
     light2->color = Color{0.f, 0.5f, 1.f};
     light2->intensity = 0.1f;
 
-    auto light3 = new PointLight;
-    light3->position = glm::vec3(-0.5f, -0.2f, 0.5f);
-    light3->color = Color{0.1f, 1.f, 0.1f};
+    auto light3 = new DirectionalLight;
+    light3->orientation = glm::vec3(0.f, -1.f, 0.f);
+    light3->color = Color{1.f, 1.f, 1.f};
     light3->intensity = 0.1f;
 
     Scene scene;
