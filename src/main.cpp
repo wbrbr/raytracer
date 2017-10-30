@@ -154,6 +154,7 @@ int main(int argc, char** argv)
         futures.push_back(task.get_future());
         threads.push_back(std::thread(std::move(task)));
     }
+    std::cout << "Raycasting..." << std::endl;
     for (unsigned int i = 0; i < threads_num; i++)
     {
         threads[i].join();
@@ -174,7 +175,7 @@ int main(int argc, char** argv)
         }
     }
 
-    std::cout << "Finished raycasting" << std::endl;
+    std::cout << "Saving the image..." << std::endl;
     img.write("out.png");
     std::cout << "Done" << std::endl;
     return 0;

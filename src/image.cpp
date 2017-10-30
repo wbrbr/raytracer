@@ -44,9 +44,9 @@ void PngImage::write(std::string path)
         rows[y] = static_cast<png_byte*>(malloc(png_get_rowbytes(png_ptr, info_ptr)));
         for (unsigned int x = 0; x < width(); x++)
         {
-            png_byte r = static_cast<unsigned char>(floor(getPixel(x, y).r * 255.f));
-            png_byte g = static_cast<unsigned char>(floor(getPixel(x, y).g * 255.f));
-            png_byte b = static_cast<unsigned char>(floor(getPixel(x, y).b * 255.f));
+            png_byte r = static_cast<unsigned char>(floor(pow(getPixel(x, y).r, 0.4545f) * 255.f));
+            png_byte g = static_cast<unsigned char>(floor(pow(getPixel(x, y).g, 0.4545f) * 255.f));
+            png_byte b = static_cast<unsigned char>(floor(pow(getPixel(x, y).b, 0.4545f) * 255.f));
             png_byte a = static_cast<unsigned char>(floor(getPixel(x, y).a * 255.f));
             rows[y][x*4] = r;
             rows[y][x*4+1] = g;

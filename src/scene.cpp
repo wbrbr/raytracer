@@ -19,16 +19,16 @@ Scene::~Scene()
 void Scene::load(std::string path)
 {
     Material material;
-    material.color = Color{1.f, 0.3f, 0.3f};
+    material.color = Color{1.f, 0.1f, 0.1f};
     materials.push_back(material);
 
+    std::cout << "Loading the scene..." << std::endl;
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
     if (!scene) {
         std::cerr << "failed to load " << path << ": " << importer.GetErrorString() << std::endl;
         return;
     }
-    // aiNode* node = scene->mRootNode;
     std::vector<aiNode*> nodestack;
     nodestack.push_back(scene->mRootNode);
     while (nodestack.size() > 0)
@@ -91,6 +91,6 @@ void Scene::load(std::string path)
             }
         }
     }
+    std::cout << "Building BVH..." << std::endl;
     bvh.build(shapes.begin(), shapes.end());
-    std::cout << "Finished building BVH" << std::endl;
 }
