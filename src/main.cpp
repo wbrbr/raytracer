@@ -50,17 +50,16 @@ std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, 
 
             auto out_color = Color{0.f, 0.f, 0.f, 1.f};
 
-            for (auto light : info.scene->lights)
-            { 
-                Ray reverse_light_ray = Ray::fromPoints(intersection_point, light.position);
+            for (auto&& light : info.scene->lights)
+            {
+                float light_intensity;
 
                 float bias = 0.001f;
-                reverse_light_ray.origin += normal * bias;
-                if (info.scene->bvh.closestHit(reverse_light_ray, nullptr, nullptr)) {
+                if (!light->atPoint(intersection_point + normal * bias, info.scene->bvh, &light_intensity)) {
                     continue;
                 }
 
-                Ray light_ray = Ray::fromPoints(light.position, intersection_point);
+                Ray light_ray = light->lightRay(intersection_point);
                 
                 glm::vec3 reflected = light_ray.orientation - 2.f * glm::dot(normal, light_ray.orientation) * normal;
                 glm::vec3 v = -camera_ray.orientation;
@@ -79,14 +78,13 @@ std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, 
 
                 float kd = 0.8f;
                 float ks = 0.2f;
-                float light_distance = glm::length(intersection_point - light.position);
-                float diffuse_factor = diffuse_intensity * light.intensity * kd / (light_distance * light_distance);
-                float specular_factor = specular_intensity * light.intensity * ks / (light_distance * light_distance);
+                float diffuse_factor = diffuse_intensity * light_intensity * kd;
+                float specular_factor = specular_intensity * light_intensity * ks;
 
                 Color color = closest_shape->material->color;
-                out_color.r += light.color.r * (diffuse_factor * color.r + specular_factor);
-                out_color.g += light.color.g * (diffuse_factor * color.g + specular_factor);
-                out_color.b += light.color.b * (diffuse_factor * color.b + specular_factor);
+                out_color.r += light->color.r * (diffuse_factor * color.r + specular_factor);
+                out_color.g += light->color.g * (diffuse_factor * color.g + specular_factor);
+                out_color.b += light->color.b * (diffuse_factor * color.b + specular_factor);
             }
             out_color.r = fmin(out_color.r, 1.f);
             out_color.g = fmin(out_color.g, 1.f);
@@ -117,26 +115,26 @@ int main(int argc, char** argv)
     Ray camera_ray;
     camera_ray.origin = glm::vec3(0.f, 0.f, 1.f);
 
-    Light light;
-    light.position = glm::vec3(0.5f, 0.f, 0.5f);
-    light.color = Color{1.f, 1.f, 1.f};
-    light.intensity = 0.1f;
+    auto light = new PointLight;
+    light->position = glm::vec3(0.5f, 0.f, 0.5f);
+    light->color = Color{1.f, 1.f, 1.f};
+    light->intensity = 0.1f;
 
-    Light light2;
-    light2.position = glm::vec3(-0.2f, 0.5f, 0.5f);
-    light2.color = Color{0.f, 0.5f, 1.f};
-    light2.intensity = 0.1f;
+    auto light2 = new PointLight;
+    light2->position = glm::vec3(-0.2f, 0.5f, 0.5f);
+    light2->color = Color{0.f, 0.5f, 1.f};
+    light2->intensity = 0.1f;
 
-    Light light3;
-    light3.position = glm::vec3(-0.5f, -0.2f, 0.5f);
-    light3.color = Color{0.1f, 1.f, 0.1f};
-    light3.intensity = 0.1f;
+    auto light3 = new PointLight;
+    light3->position = glm::vec3(-0.5f, -0.2f, 0.5f);
+    light3->color = Color{0.1f, 1.f, 0.1f};
+    light3->intensity = 0.1f;
 
     Scene scene;
     scene.load(argv[1]);
-    scene.lights.push_back(light);
-    scene.lights.push_back(light2);
-    scene.lights.push_back(light3);
+    scene.lights.push_back(std::unique_ptr<Light>(light));
+    scene.lights.push_back(std::unique_ptr<Light>(light2));
+    scene.lights.push_back(std::unique_ptr<Light>(light3));
 
     RenderInfo info;
     info.width = width;

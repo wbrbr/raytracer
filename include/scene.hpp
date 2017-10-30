@@ -15,7 +15,7 @@ public:
     Scene();
     ~Scene();
     void load(std::string path);
-    std::vector<Light> lights;
+    std::vector<std::unique_ptr<Light>> lights;
     std::vector<Shape*> shapes;
     std::vector<Mesh> meshes;
     std::vector<Material> materials;
