@@ -54,10 +54,10 @@ bool BVHAccelerator::closestHit(Ray ray, float* closest, Shape** closest_shape) 
 void BVHAccelerator::closestHitRecursive(Ray ray, unsigned int i, float* closest, Shape** closest_shape) const
 {
     auto bbox_inter = nodes[i].boundingBox.intersects(ray);
-    if (bbox_inter.size() == 0) {
+    if (!bbox_inter) {
         return;
     }
-    if (*std::min_element(bbox_inter.begin(), bbox_inter.end()) > *closest) {
+    if (*bbox_inter > *closest) {
         return;
     }
 
@@ -65,15 +65,11 @@ void BVHAccelerator::closestHitRecursive(Ray ray, unsigned int i, float* closest
         for (auto it = nodes[i].begin; it != nodes[i].end; it++)
         {
             auto res = (*it)->intersects(ray);
-            if (res.size() == 0) continue;
-            for (auto t : res)
-            {
-                if (closest != nullptr && t < *closest)
-                {
-                    *closest = t;
-                    if (closest_shape != nullptr) {
-                        *closest_shape = *it;
-                    }
+            if (!res) continue;
+            if (closest != nullptr && *res < *closest) {
+                *closest = *res;
+                if (closest_shape != nullptr) {
+                    *closest_shape = *it;
                 }
             }
         }

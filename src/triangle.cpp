@@ -1,9 +1,8 @@
 #include "shape.hpp"
 #include "mesh.hpp"
 
-std::vector<float> Triangle::intersects(Ray ray) const
+std::optional<float> Triangle::intersects(Ray ray) const
 {
-    auto res = std::vector<float>();
     glm::vec3 v0 = vertex(0).position;
     glm::vec3 v1 = vertex(1).position;
     glm::vec3 v2 = vertex(2).position;
@@ -13,29 +12,28 @@ std::vector<float> Triangle::intersects(Ray ray) const
     glm::vec3 h = glm::cross(ray.orientation, edge2);
     a = glm::dot(edge1, h);
     if (a == 0.f) { // use epsilon
-        return res;
+        return {};
     }
 
     f = 1.f / a;
     glm::vec3 s = ray.origin - v0;
     u = f * glm::dot(s, h);
     if (u < 0.f || u > 1.f) {
-        return res;
+        return {};
     }
 
     glm::vec3 q = glm::cross(s, edge1);
     v = f * glm::dot(ray.orientation, q);
     if (v < 0.f || u + v > 1.f) {
-        return res;
+        return {};
     }
 
     // there is an intersection
     float t = f * glm::dot(edge2, q);
     if (t <= 0.f) {
-        return res;
+        return {};
     }
-    res.push_back(t);
-    return res;
+    return t;
 }
 
 glm::vec3 Triangle::normal(glm::vec3 point) const

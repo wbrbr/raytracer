@@ -1,8 +1,8 @@
 #include "shape.hpp"
+#include <optional>
 
-std::vector<float> Box::intersects(Ray ray) const
+std::optional<float> Box::intersects(Ray ray) const
 {
-    std::vector<float> res;
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
     float divx = 1.f / ray.orientation.x;
     if (divx >= 0) {
@@ -23,7 +23,7 @@ std::vector<float> Box::intersects(Ray ray) const
     }
 
     if ((tmin > tymax) || (tymin > tmax)) {
-        return res;
+        return {};
     }
     if (tymin > tmin) {
         tmin = tymin;
@@ -42,7 +42,7 @@ std::vector<float> Box::intersects(Ray ray) const
     }
 
     if ((tmin > tzmax) || (tzmin > tmax)) {
-        return res;
+        return {};
     }
     if (tzmin > tmin) {
         tmin = tzmin;
@@ -51,7 +51,5 @@ std::vector<float> Box::intersects(Ray ray) const
         tmax = tzmax;
     }
 
-    res.push_back(tmin);
-    res.push_back(tmax);
-    return res;
+    return tmin;
 }
