@@ -78,7 +78,7 @@ void Scene::load(std::string path)
 
                 auto trans_shape = new TransformedShape;
                 trans_shape->shape = std::shared_ptr<Shape>(triangle);
-                trans_shape->transform = trans;
+                trans_shape->setTransform(trans);
                 trans_shape->material = &materials[0];
                 shapes.push_back(trans_shape);
             }

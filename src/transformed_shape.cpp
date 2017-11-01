@@ -4,12 +4,17 @@ TransformedShape::~TransformedShape()
 {
 }
 
+void TransformedShape::setTransform(glm::mat4 transform)
+{
+    m_transform = transform;
+    m_inv_transform = glm::inverse(transform);
+}
+
 std::optional<float> TransformedShape::intersects(Ray ray) const
 {
-    glm::mat4 inv_transform = glm::inverse(transform);
     Ray transformed_ray;
-    transformed_ray.origin = inv_transform * glm::vec4(ray.origin, 1.f);
-    transformed_ray.orientation = glm::vec3(glm::normalize(inv_transform * glm::vec4(ray.orientation, 0.f)));
+    transformed_ray.origin = m_inv_transform * glm::vec4(ray.origin, 1.f);
+    transformed_ray.orientation = glm::vec3(glm::normalize(m_inv_transform * glm::vec4(ray.orientation, 0.f)));
 
     auto obj_space_inter = shape->intersects(transformed_ray);
     if (!obj_space_inter) {

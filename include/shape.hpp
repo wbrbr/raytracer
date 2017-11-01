@@ -66,9 +66,13 @@ public:
     glm::mat4 transform;
 
     ~TransformedShape();
+    void setTransform(glm::mat4 transform);
     std::optional<float> intersects(Ray ray) const;
     glm::vec3 normal(glm::vec3 point) const;
     Box boundingBox() const;
     glm::vec3 centroid() const;
+
+private:
+    glm::mat4 m_transform, m_inv_transform;
 };
 #endif

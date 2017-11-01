@@ -1,6 +1,6 @@
 #include "mesh.hpp"
 
-Mesh::Mesh(unsigned int n): size(n), vertices(n)
+Mesh::Mesh(unsigned int n): vertices(n), size(n)
 {
 }
 
