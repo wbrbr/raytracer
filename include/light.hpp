@@ -7,7 +7,7 @@
 class Light
 {
 public:
-    virtual ~Light() {};
+    virtual ~Light() = default;
     virtual Ray lightRay(glm::vec3 point) const = 0;
     virtual bool atPoint(glm::vec3 point, const BVHAccelerator& bvh, float* out_intensity) const = 0;
     Color color;
@@ -17,7 +17,6 @@ public:
 class PointLight: public Light
 {
 public:
-    ~PointLight();
     Ray lightRay(glm::vec3 point) const;
     bool atPoint(glm::vec3 point, const BVHAccelerator& bvh, float* out_intensity) const;
 
@@ -27,7 +26,6 @@ public:
 class DirectionalLight: public Light
 {
 public:
-    ~DirectionalLight();
     Ray lightRay(glm::vec3 point) const;
     bool atPoint(glm::vec3 point, const BVHAccelerator& bvh, float* out_intensity) const;
 

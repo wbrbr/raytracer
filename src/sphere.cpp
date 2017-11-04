@@ -33,7 +33,3 @@ glm::vec3 Sphere::centroid() const
 {
     return center;
 }
-
-Sphere::~Sphere()
-{
-}

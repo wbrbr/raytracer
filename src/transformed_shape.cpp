@@ -1,9 +1,5 @@
 #include "shape.hpp"
 
-TransformedShape::~TransformedShape()
-{
-}
-
 void TransformedShape::setTransform(glm::mat4 transform)
 {
     m_transform = transform;
@@ -20,12 +16,10 @@ std::optional<float> TransformedShape::intersects(Ray ray) const
     if (!obj_space_inter) {
         return {};
     }
-    float world_space_inter;
     glm::vec3 point_object_space = transformed_ray.origin + *obj_space_inter * transformed_ray.orientation;
     glm::vec3 point_world_space = transform * glm::vec4(point_object_space, 1.f);
-    world_space_inter = glm::length(point_world_space - ray.origin);
 
-    return world_space_inter;
+    return glm::length(point_world_space - ray.origin);
 }
 
 glm::vec3 TransformedShape::normal(glm::vec3 point) const

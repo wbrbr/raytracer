@@ -19,7 +19,7 @@ public:
 class Shape
 {
 public:
-    virtual ~Shape() {};
+    virtual ~Shape() = default;
     virtual std::optional<float> intersects(Ray ray) const = 0;
     virtual glm::vec3 normal(glm::vec3 point) const = 0;
     virtual Box boundingBox() const = 0;
@@ -34,7 +34,6 @@ public:
     glm::vec3 center;
     float radius;
 
-    ~Sphere();
     std::optional<float> intersects(Ray ray) const;
     glm::vec3 normal(glm::vec3 point) const;
     Box boundingBox() const;
@@ -49,7 +48,6 @@ public:
     unsigned int mesh_id;
     unsigned int indices[3];
 
-    ~Triangle();
     std::optional<float> intersects(Ray ray) const;
     glm::vec3 normal(glm::vec3 point) const;
     Box boundingBox() const;
@@ -65,7 +63,6 @@ public:
     std::shared_ptr<Shape> shape;
     glm::mat4 transform;
 
-    ~TransformedShape();
     void setTransform(glm::mat4 transform);
     std::optional<float> intersects(Ray ray) const;
     glm::vec3 normal(glm::vec3 point) const;

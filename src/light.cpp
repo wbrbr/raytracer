@@ -1,9 +1,5 @@
 #include "light.hpp"
 
-PointLight::~PointLight()
-{
-}
-
 Ray PointLight::lightRay(glm::vec3 point) const
 {
     return Ray::fromPoints(position, point);
@@ -17,10 +13,6 @@ bool PointLight::atPoint(glm::vec3 point, const BVHAccelerator& bvh, float* out_
     }
     *out_intensity = intensity / pow(glm::length(point - position), 2.f);
     return true;
-}
-
-DirectionalLight::~DirectionalLight()
-{
 }
 
 Ray DirectionalLight::lightRay(glm::vec3 point) const

@@ -36,10 +36,6 @@ void BVHAccelerator::build(std::vector<Shape*>::iterator begin, std::vector<Shap
 
 bool BVHAccelerator::closestHit(Ray ray, float* closest, Shape** closest_shape) const
 {
-    for (unsigned int i = 0; i < nodes.size(); i++)
-    {
-        assert(nodes[i].initialized == true);
-    }
     if (closest == nullptr) {
         float c = INFINITY;
         closestHitRecursive(ray, 0, &c, closest_shape);

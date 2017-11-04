@@ -72,8 +72,3 @@ Mesh& Triangle::mesh() const
 {
     return (*meshes)[mesh_id];
 }
-
-Triangle::~Triangle()
-{
-    
-}
