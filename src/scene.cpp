@@ -18,10 +18,6 @@ Scene::~Scene()
 
 void Scene::load(std::string path)
 {
-    Material material;
-    material.color = Color{1.f, 0.1f, 0.1f};
-    materials.push_back(material);
-
     std::cout << "Loading the scene..." << std::endl;
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
@@ -29,6 +25,22 @@ void Scene::load(std::string path)
         std::cerr << "failed to load " << path << ": " << importer.GetErrorString() << std::endl;
         return;
     }
+
+    // Load materials
+    for (unsigned int i = 0; i < scene->mNumMaterials; i++)
+    {
+        aiMaterial* aiMat = scene->mMaterials[i];
+        aiColor3D diff(1.f, 0.f, 0.f);
+        aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, diff);
+        aiString name;
+        aiMat->Get(AI_MATKEY_NAME, name);
+        std::cout << name.C_Str() << std::endl;
+        Material material;
+        material.color = Color{diff.r, diff.g, diff.b};
+        materials.push_back(material);
+    }
+
+    // Load geometry
     std::vector<aiNode*> nodestack;
     nodestack.push_back(scene->mRootNode);
     while (nodestack.size() > 0)
@@ -79,8 +91,12 @@ void Scene::load(std::string path)
                 auto trans_shape = new TransformedShape;
                 trans_shape->shape = std::shared_ptr<Shape>(triangle);
                 trans_shape->setTransform(trans);
-                trans_shape->material = &materials[0];
                 shapes.push_back(trans_shape);
+
+                Object obj;
+                obj.shape = trans_shape;
+                obj.material = &materials[m->mMaterialIndex];
+                objects[obj.shape] = obj;
             }
         }
         if (node->mNumChildren > 0)

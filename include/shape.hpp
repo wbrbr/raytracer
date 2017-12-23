@@ -24,8 +24,6 @@ public:
     virtual glm::vec3 normal(glm::vec3 point) const = 0;
     virtual Box boundingBox() const = 0;
     virtual glm::vec3 centroid() const = 0;
-
-    Material* material;
 };
 
 class Sphere: public Shape
@@ -44,6 +42,7 @@ class Mesh;
 class Triangle: public Shape
 {
 public:
+    // TODO: pointer to a single mesh
     std::vector<Mesh>* meshes;
     unsigned int mesh_id;
     unsigned int indices[3];

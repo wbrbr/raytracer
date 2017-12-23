@@ -45,6 +45,8 @@ std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, 
                 res.push_back(Color{0.f, 0.f, 0.f, 1.f});
                 continue;
             }
+
+            Object obj = info.scene->objects.at(closest_shape);
             glm::vec3 intersection_point = camera_ray.origin + camera_ray.orientation * closest;
             auto normal = closest_shape->normal(intersection_point);
 
@@ -81,7 +83,7 @@ std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, 
                 float diffuse_factor = diffuse_intensity * light_intensity * kd;
                 float specular_factor = specular_intensity * light_intensity * ks;
 
-                Color color = closest_shape->material->color;
+                Color color = obj.material->color;
                 out_color.r += light->color.r * (diffuse_factor * color.r + specular_factor);
                 out_color.g += light->color.g * (diffuse_factor * color.g + specular_factor);
                 out_color.b += light->color.b * (diffuse_factor * color.b + specular_factor);

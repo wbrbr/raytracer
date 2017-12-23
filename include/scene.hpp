@@ -1,6 +1,7 @@
 #ifndef SCENE_HPP
 #define SCENE_HPP
 #include <string>
+#include <map>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -8,6 +9,7 @@
 #include "shape.hpp"
 #include "mesh.hpp"
 #include "bvh.hpp"
+#include "object.hpp"
 
 class Scene
 {
@@ -19,6 +21,7 @@ public:
     std::vector<Shape*> shapes;
     std::vector<Mesh> meshes;
     std::vector<Material> materials;
+    std::map<Shape*, Object> objects;
     BVHAccelerator bvh;
 };
 #endif
