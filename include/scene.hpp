@@ -2,6 +2,7 @@
 #define SCENE_HPP
 #include <string>
 #include <map>
+#include <list>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -19,7 +20,7 @@ public:
     void load(std::string path);
     std::vector<std::unique_ptr<Light>> lights;
     std::vector<Shape*> shapes;
-    std::vector<Mesh> meshes;
+    std::list<Mesh> meshes;
     std::vector<Material> materials;
     std::map<Shape*, Object> objects;
     BVHAccelerator bvh;

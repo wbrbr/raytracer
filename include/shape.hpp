@@ -42,9 +42,7 @@ class Mesh;
 class Triangle: public Shape
 {
 public:
-    // TODO: pointer to a single mesh
-    std::vector<Mesh>* meshes;
-    unsigned int mesh_id;
+    Mesh* mesh;
     unsigned int indices[3];
 
     std::optional<float> intersects(Ray ray) const;
@@ -53,7 +51,6 @@ public:
     glm::vec3 centroid() const;
 
     Vertex vertex(unsigned int n) const;
-    Mesh& mesh() const;
 };
 
 class TransformedShape: public Shape

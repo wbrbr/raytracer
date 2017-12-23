@@ -82,8 +82,7 @@ void Scene::load(std::string path)
             for (unsigned int i = 0; i < m->mNumFaces; i++)
             {
                 auto triangle = new Triangle;
-                triangle->meshes = &meshes;
-                triangle->mesh_id = meshes.size()-1;
+                triangle->mesh = &meshes.back();
                 triangle->indices[0] = m->mFaces[i].mIndices[0];
                 triangle->indices[1] = m->mFaces[i].mIndices[1];
                 triangle->indices[2] = m->mFaces[i].mIndices[2];
