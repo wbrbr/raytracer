@@ -36,7 +36,7 @@ void PngImage::write(std::string path)
     auto info_ptr = png_create_info_struct(png_ptr); // TODO: error handling
 
     png_init_io(png_ptr, fp);
-    png_set_IHDR(png_ptr, info_ptr, width(), height(), 8, 6, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+    png_set_IHDR(png_ptr, info_ptr, width(), height(), 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
     png_write_info(png_ptr, info_ptr);
 
     png_bytep* rows = static_cast<png_bytep*>(malloc(height() * sizeof(png_bytep)));
@@ -47,11 +47,9 @@ void PngImage::write(std::string path)
             png_byte r = static_cast<unsigned char>(floor(pow(getPixel(x, y).r, 0.4545f) * 255.f));
             png_byte g = static_cast<unsigned char>(floor(pow(getPixel(x, y).g, 0.4545f) * 255.f));
             png_byte b = static_cast<unsigned char>(floor(pow(getPixel(x, y).b, 0.4545f) * 255.f));
-            png_byte a = static_cast<unsigned char>(floor(getPixel(x, y).a * 255.f));
-            rows[y][x*4] = r;
-            rows[y][x*4+1] = g;
-            rows[y][x*4+2] = b;
-            rows[y][x*4+3] = a;
+            rows[y][x*3] = r;
+            rows[y][x*3+1] = g;
+            rows[y][x*3+2] = b;
         }
     }
 
@@ -97,9 +95,8 @@ void PngImage::read(std::string path)
             float r = rows[y][x*4] / 255.f;
             float g = rows[y][x*4+1] / 255.f;
             float b = rows[y][x*4+2] / 255.f;
-            float a = rows[y][x*4+3] / 255.f;
 
-            setPixel(x, y, Color{r, g, b, a});
+            setPixel(x, y, Color{r, g, b});
         }
         free(rows[y]);
     }

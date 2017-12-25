@@ -19,6 +19,63 @@ struct RenderInfo
     const Scene* scene;
 };
 
+Color computeColor(Ray camera_ray, const RenderInfo& info)
+{
+    Color out_color;
+    float closest = INFINITY;
+    Shape* closest_shape;
+    bool inter = info.scene->bvh.closestHit(camera_ray, &closest, &closest_shape);
+
+    if (!inter) { // no intersection
+        return out_color; // black
+    }
+
+    Object obj = info.scene->objects.at(closest_shape);
+    glm::vec3 intersection_point = camera_ray.origin + camera_ray.orientation * closest;
+    auto normal = closest_shape->normal(intersection_point);
+
+    for (auto&& light : info.scene->lights)
+    {
+        float light_intensity;
+
+        float bias = 0.001f;
+        if (!light->atPoint(intersection_point + normal * bias, info.scene->bvh, &light_intensity)) {
+            continue;
+        }
+
+        Ray light_ray = light->lightRay(intersection_point);
+
+        glm::vec3 reflected = light_ray.orientation - 2.f * glm::dot(normal, light_ray.orientation) * normal;
+        glm::vec3 v = -camera_ray.orientation;
+        float v_dot_r = glm::dot(v, reflected);
+        float specular_intensity;
+        if (v_dot_r < 0.f) {
+            specular_intensity = 0.f;
+        } else {
+            specular_intensity = pow(v_dot_r, 50);
+        }
+
+        float diffuse_intensity = glm::dot(normal, -light_ray.orientation);
+        if (diffuse_intensity < 0.f) {
+            diffuse_intensity = 0.f;
+        }
+
+        float kd = 0.8f;
+        float ks = 0.2f;
+        float diffuse_factor = diffuse_intensity * light_intensity * kd;
+        float specular_factor = specular_intensity * light_intensity * ks;
+
+        Color color = obj.material->color;
+        out_color.r += light->color.r * (diffuse_factor * color.r + specular_factor);
+        out_color.g += light->color.g * (diffuse_factor * color.g + specular_factor);
+        out_color.b += light->color.b * (diffuse_factor * color.b + specular_factor);
+    }
+    out_color.r = fmin(out_color.r, 1.f);
+    out_color.g = fmin(out_color.g, 1.f);
+    out_color.b = fmin(out_color.b, 1.f);
+    return out_color;
+}
+
 std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, unsigned int row_end)
 {
     std::vector<Color> res;
@@ -28,73 +85,16 @@ std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, 
     {
         float down_y = 1.f - static_cast<float>(y) * 2.f / static_cast<float>(info.height);
         float up_y = 1.f - static_cast<float>(y+1) * 2.f / static_cast<float>(info.height);
-        float world_y = (down_y + up_y) / 2.f;
         for (unsigned int x = 0; x < info.height; x++)
         {
             float left_x = static_cast<float>(x) * 2.f / static_cast<float>(info.width) - 1.f;
             float right_x = static_cast<float>(x+1) * 2.f / static_cast<float>(info.width) - 1.f;
+
             float world_x = (left_x + right_x) / 2.f;
-
+            float world_y = (down_y + up_y) / 2.f;
             camera_ray.setOrientation(glm::vec3(world_x, world_y, -1.f));
-
-            float closest = INFINITY;
-            Shape* closest_shape;
-            bool inter = info.scene->bvh.closestHit(camera_ray, &closest, &closest_shape);
-
-            if (!inter) { // no intersection
-                res.push_back(Color{0.f, 0.f, 0.f, 1.f});
-                continue;
-            }
-
-            Object obj = info.scene->objects.at(closest_shape);
-            glm::vec3 intersection_point = camera_ray.origin + camera_ray.orientation * closest;
-            auto normal = closest_shape->normal(intersection_point);
-
-            auto out_color = Color{0.f, 0.f, 0.f, 1.f};
-
-            for (auto&& light : info.scene->lights)
-            {
-                float light_intensity;
-
-                float bias = 0.001f;
-                if (!light->atPoint(intersection_point + normal * bias, info.scene->bvh, &light_intensity)) {
-                    continue;
-                }
-
-                Ray light_ray = light->lightRay(intersection_point);
-                
-                glm::vec3 reflected = light_ray.orientation - 2.f * glm::dot(normal, light_ray.orientation) * normal;
-                glm::vec3 v = -camera_ray.orientation;
-                float v_dot_r = glm::dot(v, reflected);
-                float specular_intensity;
-                if (v_dot_r < 0.f) {
-                    specular_intensity = 0.f;
-                } else {
-                    specular_intensity = pow(v_dot_r, 50);
-                }
-
-                float diffuse_intensity = glm::dot(normal, -light_ray.orientation);
-                if (diffuse_intensity < 0.f) {
-                    diffuse_intensity = 0.f;
-                }
-
-                float kd = 0.8f;
-                float ks = 0.2f;
-                float diffuse_factor = diffuse_intensity * light_intensity * kd;
-                float specular_factor = specular_intensity * light_intensity * ks;
-
-                Color color = obj.material->color;
-                out_color.r += light->color.r * (diffuse_factor * color.r + specular_factor);
-                out_color.g += light->color.g * (diffuse_factor * color.g + specular_factor);
-                out_color.b += light->color.b * (diffuse_factor * color.b + specular_factor);
-            }
-            out_color.r = fmin(out_color.r, 1.f);
-            out_color.g = fmin(out_color.g, 1.f);
-            out_color.b = fmin(out_color.b, 1.f);
-            res.push_back(out_color);
-
+            res.push_back(computeColor(camera_ray, info));
         }
-
     }
     return res;
 }

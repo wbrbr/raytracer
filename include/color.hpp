@@ -3,9 +3,8 @@
 
 struct Color
 {
-    float r;
-    float g;
-    float b;
-    float a = 1.f;
+    float r = 0.f;
+    float g = 0.f;
+    float b = 0.f;
 };
 #endif
