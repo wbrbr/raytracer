@@ -17,6 +17,7 @@ struct RenderInfo
     unsigned int width, height;
     glm::vec3 camera_position;
     const Scene* scene;
+    Image* image;
 };
 
 Color computeColor(Ray camera_ray, const RenderInfo& info)
@@ -75,16 +76,16 @@ Color computeColor(Ray camera_ray, const RenderInfo& info)
     return out_color;
 }
 
-std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, unsigned int row_end)
+void renderThread(const RenderInfo& info, unsigned int x_start, unsigned int y_start, unsigned int x_size, unsigned int y_size)
 {
     std::vector<Color> res;
     Ray camera_ray;
     camera_ray.origin = info.camera_position;
-    for (unsigned int y = row_start; y < row_end; y++)
+    for (unsigned int y = y_start; y < y_start + y_size; y++)
     {
         float down_y = 1.f - static_cast<float>(y) * 2.f / static_cast<float>(info.height);
         float up_y = 1.f - static_cast<float>(y+1) * 2.f / static_cast<float>(info.height);
-        for (unsigned int x = 0; x < info.height; x++)
+        for (unsigned int x = x_start; x < x_start + x_size; x++)
         {
             float left_x = static_cast<float>(x) * 2.f / static_cast<float>(info.width) - 1.f;
             float right_x = static_cast<float>(x+1) * 2.f / static_cast<float>(info.width) - 1.f;
@@ -92,10 +93,9 @@ std::vector<Color> renderThread(const RenderInfo& info, unsigned int row_start, 
             float world_x = (left_x + right_x) / 2.f;
             float world_y = (down_y + up_y) / 2.f;
             camera_ray.setOrientation(glm::vec3(world_x, world_y, -1.f));
-            res.push_back(computeColor(camera_ray, info));
+            info.image->setPixel(x, y, computeColor(camera_ray, info));
         }
     }
-    return res;
 }
 
 int main(int argc, char** argv)
@@ -105,13 +105,9 @@ int main(int argc, char** argv)
         std::cout << "Usage: " << argv[0] << " <file>" << std::endl;
         return 1;
     }
-    unsigned int width = 500;
-    unsigned int height = 500;
+    const unsigned int width = 512;
+    const unsigned int height = 512;
     PngImage img(width, height);
-
-    Sphere sphere;
-    sphere.center = glm::vec3(0.f, 0.f, 0.2f);
-    sphere.radius = 0.2f;
 
     Ray camera_ray;
     camera_ray.origin = glm::vec3(0.f, 0.f, 1.f);
@@ -142,36 +138,22 @@ int main(int argc, char** argv)
     info.height = height;
     info.camera_position = glm::vec3(0.f, 0.f, 1.f);
     info.scene = &scene;
+    info.image = &img;
 
-    const unsigned int threads_num = 10;
-    std::vector<std::future<std::vector<Color>>> futures;
+    const unsigned int tile_size = 16; // TODO: handle image size not multiple of tile size
     std::vector<std::thread> threads;
-    for (unsigned int i = 0; i < threads_num; i++)
+    for (unsigned int tile_x = 0; tile_x < width / tile_size; tile_x++)
     {
-        
-        std::packaged_task<std::vector<Color>()> task(std::bind(renderThread, info, height * i / threads_num, height * (i+1) / threads_num));
-        futures.push_back(task.get_future());
-        threads.push_back(std::thread(std::move(task)));
+        for (unsigned int tile_y = 0; tile_y < height / tile_size; tile_y++)
+        {
+            std::thread t(std::bind(renderThread, info, tile_x * tile_size, tile_y * tile_size, tile_size, tile_size));
+            threads.push_back(std::move(t));
+        }
     }
     std::cout << "Raycasting..." << std::endl;
-    for (unsigned int i = 0; i < threads_num; i++)
+    for (unsigned int i = 0; i < threads.size(); i++)
     {
         threads[i].join();
-    }
-
-    {
-        unsigned int i = 0;
-        for (unsigned int j = 0; j < threads_num; j++)
-        {
-            auto vec = futures[j].get();
-            for (auto color : vec)
-            {
-                unsigned int x = i % width;
-                unsigned int y = i / width;
-                img.setPixel(x, y, color);
-                i++;
-            }
-        }
     }
 
     std::cout << "Saving the image..." << std::endl;
