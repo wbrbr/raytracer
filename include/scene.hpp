@@ -22,7 +22,7 @@ public:
     std::vector<Shape*> shapes;
     std::list<Mesh> meshes;
     std::vector<Material> materials;
-    std::map<Shape*, Object> objects;
+    std::vector<Object> objects;
     BVHAccelerator bvh;
 };
 #endif

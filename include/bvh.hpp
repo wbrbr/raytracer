@@ -1,13 +1,13 @@
 #ifndef BVH_HPP
 #define BVH_HPP
-#include "shape.hpp"
+#include "object.hpp"
 #include "ray.hpp"
 #include <vector>
 
 struct BVHNode
 {
     bool initialized;
-    std::vector<Shape*>::iterator begin, end;
+    std::vector<Object>::iterator begin, end;
     bool leaf;
     unsigned int left, right;
     Box boundingBox;
@@ -16,13 +16,13 @@ struct BVHNode
 class BVHAccelerator
 {
 public:
-    void build(std::vector<Shape*>::iterator begin, std::vector<Shape*>::iterator end);
-    bool closestHit(Ray ray, float* closest, Shape** closest_shape) const;
+    void build(std::vector<Object>::iterator begin, std::vector<Object>::iterator end);
+    bool closestHit(Ray ray, float* closest, Object* closest_object) const;
 private:
     void buildRecursive(unsigned int i);
-    void closestHitRecursive(Ray ray, unsigned int i, float* closest, Shape** closest_shape) const;
+    void closestHitRecursive(Ray ray, unsigned int i, float* closest, Object* closest_object) const;
     std::vector<BVHNode> nodes;
-    std::vector<Shape*> shapes;
+    std::vector<Object> objects;
     unsigned int left_index, right_index, next_node;
 };
 #endif

@@ -6,6 +6,6 @@
 struct Object
 {
     Shape* shape;
-    Material* material;    
+    Material* material;
 };
 #endif

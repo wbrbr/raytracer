@@ -5,49 +5,49 @@
 #include <iostream>
 #include <cassert>
 
-Box computeBoundingBox(std::vector<Shape*>::iterator begin, std::vector<Shape*>::iterator end)
+Box computeBoundingBox(std::vector<Object>::iterator begin, std::vector<Object>::iterator end)
 {
-    Box b = (*begin)->boundingBox();
+    Box b = begin->shape->boundingBox();
     for (auto it = begin; it != end; it++)
     {
-        Box b1 = (*it)->boundingBox();
+        Box b1 = it->shape->boundingBox();
         b.minPoint = minp(b.minPoint, b1.minPoint);
         b.maxPoint = maxp(b.maxPoint, b1.maxPoint);
     }
     return b;
 }
 
-void BVHAccelerator::build(std::vector<Shape*>::iterator begin, std::vector<Shape*>::iterator end)
+void BVHAccelerator::build(std::vector<Object>::iterator begin, std::vector<Object>::iterator end)
 {
-    std::copy(begin, end, std::back_inserter(shapes));
+    std::copy(begin, end, std::back_inserter(objects));
     left_index = 0;
-    right_index = shapes.size();
+    right_index = objects.size();
     next_node = 1;
 
     BVHNode root;
     root.initialized = true;
-    root.begin = shapes.begin();
-    root.end = shapes.end();
+    root.begin = objects.begin();
+    root.end = objects.end();
     root.leaf = false;
     root.boundingBox = computeBoundingBox(root.begin, root.end);
     nodes.push_back(root);
     buildRecursive(0);
 }
 
-bool BVHAccelerator::closestHit(Ray ray, float* closest, Shape** closest_shape) const
+bool BVHAccelerator::closestHit(Ray ray, float* closest, Object* closest_object) const
 {
     if (closest == nullptr) {
         float c = INFINITY;
-        closestHitRecursive(ray, 0, &c, closest_shape);
+        closestHitRecursive(ray, 0, &c, closest_object);
         return c != INFINITY;
     } else {
         *closest = INFINITY;
-        closestHitRecursive(ray, 0, closest, closest_shape);
+        closestHitRecursive(ray, 0, closest, closest_object);
         return *closest != INFINITY;
     }
 }
 
-void BVHAccelerator::closestHitRecursive(Ray ray, unsigned int i, float* closest, Shape** closest_shape) const
+void BVHAccelerator::closestHitRecursive(Ray ray, unsigned int i, float* closest, Object* closest_object) const
 {
     auto bbox_inter = nodes[i].boundingBox.intersects(ray);
     if (!bbox_inter) {
@@ -60,49 +60,49 @@ void BVHAccelerator::closestHitRecursive(Ray ray, unsigned int i, float* closest
     if (nodes[i].leaf) {
         for (auto it = nodes[i].begin; it != nodes[i].end; it++)
         {
-            auto res = (*it)->intersects(ray);
+            auto res = it->shape->intersects(ray);
             if (!res) continue;
             if (closest != nullptr && *res < *closest) {
                 *closest = *res;
-                if (closest_shape != nullptr) {
-                    *closest_shape = *it;
+                if (closest_object != nullptr) {
+                    *closest_object = *it;
                 }
             }
         }
     } else {
-        closestHitRecursive(ray, nodes[i].left, closest, closest_shape);
-        closestHitRecursive(ray, nodes[i].right, closest, closest_shape);
+        closestHitRecursive(ray, nodes[i].left, closest, closest_object);
+        closestHitRecursive(ray, nodes[i].right, closest, closest_object);
     }
 }
 
-bool sortX(Shape* s1, Shape* s2)
+bool sortX(Object s1, Object s2)
 {
-    return s1->centroid().x < s2->centroid().x;
+    return s1.shape->centroid().x < s2.shape->centroid().x;
 }
 
-bool sortY(Shape* s1, Shape* s2)
+bool sortY(Object s1, Object s2)
 {
-    return s1->centroid().y < s2->centroid().y;
+    return s1.shape->centroid().y < s2.shape->centroid().y;
 }
 
-bool sortZ(Shape* s1, Shape* s2)
+bool sortZ(Object s1, Object s2)
 {
-    return s1->centroid().z < s2->centroid().z;
+    return s1.shape->centroid().z < s2.shape->centroid().z;
 }
 
-bool findX(float limit, Shape* s)
+bool findX(float limit, Object s)
 {
-    return s->centroid().x >= limit;
+    return s.shape->centroid().x >= limit;
 }
 
-bool findY(float limit, Shape* s)
+bool findY(float limit, Object s)
 {
-    return s->centroid().y >= limit;
+    return s.shape->centroid().y >= limit;
 }
 
-bool findZ(float limit, Shape* s)
+bool findZ(float limit, Object s)
 {
-    return s->centroid().z >= limit;
+    return s.shape->centroid().z >= limit;
 }
 
 void BVHAccelerator::buildRecursive(unsigned int i)
@@ -117,7 +117,7 @@ void BVHAccelerator::buildRecursive(unsigned int i)
 
     // find largest dimension
     glm::vec3 box_vec = nodes[i].boundingBox.maxPoint - nodes[i].boundingBox.minPoint;
-    std::vector<Shape*>::iterator first_after_limit;
+    std::vector<Object>::iterator first_after_limit;
     if (box_vec.x >= box_vec.y && box_vec.x >= box_vec.z) {
         // sort elements by X
         std::sort(nodes[i].begin, nodes[i].end, sortX);

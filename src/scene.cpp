@@ -78,7 +78,7 @@ void Scene::load(std::string path)
             trans[3][1] = aiTrans.d2;
             trans[3][2] = aiTrans.d3;
             trans[3][3] = aiTrans.d4;
-            
+
             for (unsigned int i = 0; i < m->mNumFaces; i++)
             {
                 auto triangle = new Triangle;
@@ -95,7 +95,7 @@ void Scene::load(std::string path)
                 Object obj;
                 obj.shape = trans_shape;
                 obj.material = &materials[m->mMaterialIndex];
-                objects[obj.shape] = obj;
+                objects.push_back(obj);
             }
         }
         if (node->mNumChildren > 0)
@@ -107,5 +107,5 @@ void Scene::load(std::string path)
         }
     }
     std::cout << "Building BVH..." << std::endl;
-    bvh.build(shapes.begin(), shapes.end());
+    bvh.build(objects.begin(), objects.end());
 }

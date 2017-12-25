@@ -23,16 +23,15 @@ Color computeColor(Ray camera_ray, const RenderInfo& info)
 {
     Color out_color;
     float closest = INFINITY;
-    Shape* closest_shape;
-    bool inter = info.scene->bvh.closestHit(camera_ray, &closest, &closest_shape);
+    Object closest_object;
+    bool inter = info.scene->bvh.closestHit(camera_ray, &closest, &closest_object);
 
     if (!inter) { // no intersection
         return out_color; // black
     }
 
-    Object obj = info.scene->objects.at(closest_shape);
     glm::vec3 intersection_point = camera_ray.origin + camera_ray.orientation * closest;
-    auto normal = closest_shape->normal(intersection_point);
+    auto normal = closest_object.shape->normal(intersection_point);
 
     for (auto&& light : info.scene->lights)
     {
@@ -65,7 +64,7 @@ Color computeColor(Ray camera_ray, const RenderInfo& info)
         float diffuse_factor = diffuse_intensity * light_intensity * kd;
         float specular_factor = specular_intensity * light_intensity * ks;
 
-        Color color = obj.material->color;
+        Color color = closest_object.material->color;
         out_color.r += light->color.r * (diffuse_factor * color.r + specular_factor);
         out_color.g += light->color.g * (diffuse_factor * color.g + specular_factor);
         out_color.b += light->color.b * (diffuse_factor * color.b + specular_factor);
