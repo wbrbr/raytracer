@@ -37,8 +37,10 @@ void Scene::load(std::string path)
         std::cout << name.C_Str() << std::endl;
         Material material;
         material.color = Color{diff.r, diff.g, diff.b};
+        material.reflection = 0.f;
         materials.push_back(material);
     }
+    materials[2].reflection = 0.5f;
 
     // Load geometry
     std::vector<aiNode*> nodestack;

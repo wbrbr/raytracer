@@ -33,42 +33,40 @@ Color computeColor(Ray camera_ray, const RenderInfo& info)
 
     glm::vec3 intersection_point = camera_ray.origin + camera_ray.orientation * closest;
     auto normal = closest_object.shape->normal(intersection_point);
+    float bias = 0.001f;
+
+    if (closest_object.material->reflection > 0.f) {
+        glm::vec3 reflected = camera_ray.orientation - 2.f * glm::dot(normal, camera_ray.orientation) * normal;
+        Ray reflected_ray;
+        reflected_ray.origin = intersection_point + normal * bias;
+        reflected_ray.orientation = glm::normalize(reflected);
+        Color color = computeColor(reflected_ray, info);
+        out_color.r += color.r * closest_object.material->reflection;
+        out_color.g += color.g * closest_object.material->reflection;
+        out_color.b += color.b * closest_object.material->reflection;
+    }
 
     for (auto&& light : info.scene->lights)
     {
         float light_intensity;
 
-        float bias = 0.001f;
         if (!light->atPoint(intersection_point + normal * bias, info.scene->bvh, &light_intensity)) {
             continue;
         }
 
         Ray light_ray = light->lightRay(intersection_point);
 
-        glm::vec3 reflected = light_ray.orientation - 2.f * glm::dot(normal, light_ray.orientation) * normal;
-        glm::vec3 v = -camera_ray.orientation;
-        float v_dot_r = glm::dot(v, reflected);
-        float specular_intensity;
-        if (v_dot_r < 0.f) {
-            specular_intensity = 0.f;
-        } else {
-            specular_intensity = pow(v_dot_r, 50);
+        if (closest_object.material->reflection < 1.f) {
+            float diffuse_intensity = glm::dot(normal, -light_ray.orientation) * (1.f - closest_object.material->reflection);
+            if (diffuse_intensity < 0.f) {
+                diffuse_intensity = 0.f;
+            }
+
+            Color color = closest_object.material->color;
+            out_color.r += light->color.r * diffuse_intensity * light_intensity * color.r;
+            out_color.g += light->color.g * diffuse_intensity * light_intensity * color.g;
+            out_color.b += light->color.b * diffuse_intensity * light_intensity * color.b;
         }
-
-        float diffuse_intensity = glm::dot(normal, -light_ray.orientation);
-        if (diffuse_intensity < 0.f) {
-            diffuse_intensity = 0.f;
-        }
-
-        float kd = 0.8f;
-        float ks = 0.2f;
-        float diffuse_factor = diffuse_intensity * light_intensity * kd;
-        float specular_factor = specular_intensity * light_intensity * ks;
-
-        Color color = closest_object.material->color;
-        out_color.r += light->color.r * (diffuse_factor * color.r + specular_factor);
-        out_color.g += light->color.g * (diffuse_factor * color.g + specular_factor);
-        out_color.b += light->color.b * (diffuse_factor * color.b + specular_factor);
     }
     out_color.r = fmin(out_color.r, 1.f);
     out_color.g = fmin(out_color.g, 1.f);
