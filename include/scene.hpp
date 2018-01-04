@@ -20,8 +20,8 @@ public:
     void load(std::string path);
     std::vector<std::unique_ptr<Light>> lights;
     std::vector<Shape*> shapes;
-    std::list<Mesh> meshes;
-    std::vector<Material> materials;
+    std::map<std::string, std::unique_ptr<Mesh>> meshes;
+    std::map<std::string, Material> materials;
     std::vector<Object> objects;
     BVHAccelerator bvh;
 };

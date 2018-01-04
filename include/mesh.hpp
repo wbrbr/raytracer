@@ -7,6 +7,7 @@ class Mesh
 {
 public:
     std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
     unsigned int size;
     Mesh(unsigned int n);
     ~Mesh();

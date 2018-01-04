@@ -1,0 +1,25 @@
+{
+    "meshes": {
+        "Suzanne": "suzanne.obj"
+    },
+    "materials": {
+        "Box": {
+            "diffuse": [255, 0, 0],
+            "reflection": 0
+        }
+    },
+    "lights": [
+        {
+            "position": [0.5, 0, 0.5],
+            "color": [255, 255, 255],
+            "intensity": 0.1
+        }
+    ],
+    "objects": [
+        {
+            "mesh": "Suzanne",
+            "material": "Box",
+            "position": [0.1, 0, 0]
+        }
+    ]
+}

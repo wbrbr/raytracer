@@ -56,7 +56,7 @@ public:
 class TransformedShape: public Shape
 {
 public:
-    std::shared_ptr<Shape> shape;
+    std::unique_ptr<Shape> shape;
     glm::mat4 transform;
 
     void setTransform(glm::mat4 transform);
